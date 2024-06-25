@@ -83,12 +83,17 @@ export const Box: FC<BoxProps> = ({ preview }) => {
       if (currentTime === 0) {
         setFireAlert(true);
       } else {
-        setCurrentTime(currentTime - 100);
+        setCurrentTime(currentTime - 1000);
       }
     }
-  }, 100);
+  }, 1000);
 
-  const notify = () => toast("Timer Expired!");
+  const sound = new Audio("sound.wav");
+
+  const notify = () => {
+    sound.play();
+    toast("Timer Expired!");
+  }
 
   useEffect(() => {
     if (fireAlert) {
