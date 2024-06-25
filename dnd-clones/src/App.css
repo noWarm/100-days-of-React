@@ -1,0 +1,23 @@
+body {
+   margin: 0;
+   padding: 0;
+}
+
+.time-ctrl-btn-color {
+  @apply rounded-sm bg-[#3D4450] text-[#92969C] hover:bg-[#464D58] hover:text-[#A4A9AD] active:bg-[#393F49] active:text-[#B3B7BB] select-none;
+}
+
+.repeat-highlight {
+  @apply rounded-sm bg-[#DCDEDF] text-[#252B31] select-none;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('./fonts/Inter-Black.ttf') format('truetype');
+  /* Add additional font formats if necessary */
+  /* Specify the correct path to the font files */
+}
+
+.time-display-font {
+  font-family: 'Inter', 'sans-serif';
+}

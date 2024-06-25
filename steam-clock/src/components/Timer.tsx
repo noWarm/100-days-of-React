@@ -6,26 +6,16 @@ import { useInterval } from "usehooks-ts";
 import "react-toastify/dist/ReactToastify.css";
 import TimeBtn from "./TimeBtn.tsx";
 import StartBtn from "./StartBtn.tsx";
-import { useDrag } from "react-dnd";
-import { ItemTypes } from "../constants/itemtypes.ts";
+
 import { toast } from "react-toastify";
 
-function Timer({ id, left, top }) {
+function Timer() {
   const [totalTime, setTotalTime] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [isRepeat, setIsRepeat] = useState(false);
   const [isCountDown, setIsCountDown] = useState(false);
   const [fireAlert, setFireAlert] = useState(false);
-  const [{ isDragging }, drag] = useDrag(
-    () => ({
-      type: ItemTypes.Timer,
-      item: { id, left, top },
-      collect: (monitor) => ({
-        isDragging: !!monitor.isDragging(),
-      }),
-    }),
-    [id, left, top]
-  );
+
   const notify = () => toast("Timer Expired!");
 
   const repeatOnclickHandler = () => {
@@ -95,15 +85,9 @@ function Timer({ id, left, top }) {
     return String(ss).padStart(2, "0");
   };
 
-  if (isDragging) {
-    return <div ref={drag} />;
-  }
-
   return (
     <div
-      ref={drag}
-      className="absolute px-2 w-min bg-[#1B1F27]"
-      style={{ left, top }}
+      className="relative px-2 w-min bg-[#1B1F27]"
     >
       <div className="w-full text-white font-black text-[34px] tracking-wider time-display-font text-center flex justify-between  gap-x-0">
         <div className="w-[48px]">

@@ -1,8 +1,9 @@
 import { XYCoord, useDrop } from "react-dnd";
 import React, { useState } from "react";
-import Timer from "./components/Timer.tsx";
 import { ItemTypes } from "./constants/itemtypes.ts";
 import { DragItem } from "./interfaces.ts";
+import TimerBox from "./components/TimerBox.tsx";
+import { BoxWithHandle } from "./components/BoxWithContainer.tsx";
 
 function DnDCanvas() {
   const [timer, setTimer] = useState<{ top: number; left: number }>({
@@ -27,7 +28,8 @@ function DnDCanvas() {
 
   return (
     <div ref={drop} className="relative h-screen">
-      <Timer key={0} id={0} left={timer.left} top={timer.top}></Timer>
+      {/* <TimerBox id={0} left={timer.left} top={timer.top}></TimerBox> */}
+      <BoxWithHandle></BoxWithHandle>
     </div>
   );
 }
