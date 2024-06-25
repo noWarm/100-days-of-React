@@ -1,16 +1,9 @@
-import type { FC } from "react";
-import { useCallback, useMemo, useState } from "react";
-
-import { Container } from "./Container";
-import { CustomDragLayer } from "./CustomDragLayer";
+import React, { FC, useMemo, useState } from "react";
+import "./App.css";
 import { createContext } from "react";
-import { Slide, ToastContainer } from "react-toastify";
+import { TimerBox } from "./components/TimerBox";
 
-// const TimerContext = createContext({totalTime: 0, currentTime: 0, isRepeat: false});
 export const TimerContext = createContext<{
-  value: number;
-  setValue: (value: number) => void;
-
   totalTime: number;
   setTotalTime: (value: number) => void;
   currentTime: number;
@@ -22,8 +15,6 @@ export const TimerContext = createContext<{
   fireAlert: boolean;
   setFireAlert: (value: boolean) => void;
 }>({
-  value: 0,
-  setValue: () => {},
   totalTime: 0,
   setTotalTime: () => {},
   currentTime: 0,
@@ -36,17 +27,15 @@ export const TimerContext = createContext<{
   setFireAlert: () => {},
 });
 
-export const Example: FC = () => {
-  const [count, setCount] = useState(0);
+export const App: FC = () => {
   const [totalTime, setTotalTime] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [isRepeat, setIsRepeat] = useState(false);
   const [isCountDown, setIsCountDown] = useState(false);
   const [fireAlert, setFireAlert] = useState(false);
+
   const provided = useMemo(
     () => ({
-      value: count,
-      setValue: (value: number) => setCount(value),
       totalTime,
       setTotalTime: (value: number) => setTotalTime(value),
       currentTime,
@@ -58,14 +47,13 @@ export const Example: FC = () => {
       fireAlert,
       setFireAlert: (value: boolean) => setFireAlert(value),
     }),
-    [count, totalTime, currentTime, isRepeat, isCountDown, fireAlert]
+    [totalTime, currentTime, isRepeat, isCountDown, fireAlert]
   );
 
   return (
-    <div>
+    <div className="App">
       <TimerContext.Provider value={provided}>
-        <Container />
-        <CustomDragLayer />
+        <TimerBox />
       </TimerContext.Provider>
     </div>
   );
