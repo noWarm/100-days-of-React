@@ -30,7 +30,11 @@ npx tailwindcss init
 
 ### 7. Create Drag And Drop Context at topmost level
 
-### 7. Create drag and drop components with react-dnd hooks
+### 8. Create drag and drop components with react-dnd hooks
 - DraggableBox: useDrag
 - Container: useDrop
 - CustomDragLayer: useDragLayer
+
+### 9. Add Toast container
+
+### 10. Add Sound

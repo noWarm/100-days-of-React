@@ -1,10 +1,12 @@
-import React, { FC, useMemo, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import "./App.css";
 import { createContext } from "react";
 import { Container } from "./components/DragAndDrop/Container";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { DragLayer } from "./components/DragAndDrop/DragLayer";
+import { Slide, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const TimerContext = createContext<{
   totalTime: number;
@@ -61,6 +63,14 @@ export const App: FC = () => {
           <DragLayer />
         </TimerContext.Provider>
       </DndProvider>
+
+      <ToastContainer
+        position="bottom-right"
+        theme="dark"
+        transition={Slide}
+        hideProgressBar
+        autoClose={5000}
+      />
     </div>
   );
 };
