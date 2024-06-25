@@ -1,12 +1,12 @@
 import type { CSSProperties, FC } from "react";
 import { useContext, useEffect } from "react";
-import { TimerContext } from "../App";
+import { TimerContext } from "../../App";
 import { TimeBtn } from "./TimeBtn";
 import { useInterval } from "usehooks-ts";
 import { toast } from "react-toastify";
 import { ControlBtn } from "./ControlBtn";
 import { StartBtn } from "./StartBtn";
-import "../App.css";
+import "../../App.css";
 
 export const TimerBox: FC = () => {
   const {

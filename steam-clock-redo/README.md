@@ -1,4 +1,4 @@
-## Steps
+## Project Steps
 
 ### 1. Install dependencies
 ```
@@ -20,9 +20,17 @@ npx tailwindcss init
 ### 4. Create Context Provider At topmost level
 
 ### 5. Create Timer Component
-- ControlBtn
-- TimeBtn
-- StartBtn
+- Components
+    - ControlBtn
+    - TimeBtn
+    - StartBtn
 - Combined into TimerBox
 
 ### 6. Add css to components
+
+### 7. Create Drag And Drop Context at topmost level
+
+### 7. Create drag and drop components with react-dnd hooks
+- DraggableBox: useDrag
+- Container: useDrop
+- CustomDragLayer: useDragLayer

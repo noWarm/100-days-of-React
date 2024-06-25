@@ -1,7 +1,10 @@
 import React, { FC, useMemo, useState } from "react";
 import "./App.css";
 import { createContext } from "react";
-import { TimerBox } from "./components/TimerBox";
+import { Container } from "./components/DragAndDrop/Container";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { DragLayer } from "./components/DragAndDrop/DragLayer";
 
 export const TimerContext = createContext<{
   totalTime: number;
@@ -52,9 +55,12 @@ export const App: FC = () => {
 
   return (
     <div className="App">
-      <TimerContext.Provider value={provided}>
-        <TimerBox />
-      </TimerContext.Provider>
+      <DndProvider backend={HTML5Backend}>
+        <TimerContext.Provider value={provided}>
+          <Container />
+          <DragLayer />
+        </TimerContext.Provider>
+      </DndProvider>
     </div>
   );
 };
