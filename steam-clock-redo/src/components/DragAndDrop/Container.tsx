@@ -1,4 +1,4 @@
-import { CSSProperties, FC, useCallback, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import { useDrop } from "react-dnd";
 import { ItemTypes } from "../../types/ItemTypes";
 import type { DragItem } from "../../types/interfaces";
@@ -43,7 +43,7 @@ export const Container: FC = ({}) => {
 
   return (
     <div ref={drop} className="relative w-screen h-screen">
-        <DraggableBox {...boxes}/>
+      <DraggableBox {...boxes} />
     </div>
   );
 };

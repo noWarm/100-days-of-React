@@ -1,3 +1,14 @@
+## To Run
+- clone this repo
+```
+npm i
+npm start
+```
+
+## App Structure
+![App Structure](image.png)
+
+
 ## Project Steps
 
 ### 1. Install dependencies

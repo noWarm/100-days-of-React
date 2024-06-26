@@ -1,4 +1,4 @@
-import type { CSSProperties, FC } from "react";
+import type { FC } from "react";
 import { useContext, useEffect } from "react";
 import { TimerContext } from "../../App";
 import { TimeBtn } from "./TimeBtn";

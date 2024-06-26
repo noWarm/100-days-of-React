@@ -3,8 +3,8 @@ import Example from "./example";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import "./index.css";
-import { Slide, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { Slide, ToastContainer } from "react-toastify";
 
 function App() {
   return (
