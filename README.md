@@ -4,4 +4,6 @@ day1: steam clock clone
 
 day2: added drag and drop to the clock
 
-day3: cleanup steam clock clone
+day3:
+- cleanup steam clock clone
+- sidebar with jotai
