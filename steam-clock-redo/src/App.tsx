@@ -1,11 +1,11 @@
-import { FC, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { createContext } from "react";
 import { Container } from "./components/DragAndDrop/Container";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { DragLayer } from "./components/DragAndDrop/DragLayer";
-import { Slide, ToastContainer } from "react-toastify";
+import { Slide, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export const TimerContext = createContext<{
@@ -54,6 +54,20 @@ export const App: FC = () => {
     }),
     [totalTime, currentTime, isRepeat, isCountDown, fireAlert]
   );
+
+  const sound = new Audio("sound.wav");
+
+  const notify = () => {
+    sound.play();
+    toast("Timer Expired!");
+  };
+
+  useEffect(() => {
+    if (fireAlert) {
+      setFireAlert(false);
+      notify();
+    }
+  }, [fireAlert]);
 
   return (
     <div className="App">

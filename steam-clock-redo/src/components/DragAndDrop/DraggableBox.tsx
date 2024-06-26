@@ -10,11 +10,11 @@ export interface DraggableBoxProps {
 }
 
 function getStyles(
-    left: number,
-    top: number,
-    isDragging: boolean,
+  left: number,
+  top: number,
+  isDragging: boolean
 ): CSSProperties {
-    const transform = `translate3d(${left}px, ${top}px, 0)`;
+  const transform = `translate3d(${left}px, ${top}px, 0)`;
   return {
     position: "absolute",
     transform,
@@ -26,7 +26,7 @@ function getStyles(
   };
 }
 
-export const DraggableBox: FC<DraggableBoxProps> = ({left, top}) => {
+export const DraggableBox: FC<DraggableBoxProps> = ({ left, top }) => {
   const [{ isDragging }, drag, preview] = useDrag(
     () => ({
       type: ItemTypes.BOX,
@@ -43,7 +43,7 @@ export const DraggableBox: FC<DraggableBoxProps> = ({left, top}) => {
   });
 
   return (
-    <div ref={preview} style={getStyles(left, top, isDragging)} >
+    <div ref={preview} style={getStyles(left, top, isDragging)}>
       <div
         ref={drag}
         className="h-6 bg-[#1B1F27] border-2 border-[#1B1F27]"

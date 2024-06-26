@@ -78,17 +78,8 @@ export const TimerBox: FC = () => {
     }
   }, 1000);
 
-  const sound = new Audio("sound.wav");
-
-  const notify = () => {
-    sound.play();
-    toast("Timer Expired!");
-  };
-
   useEffect(() => {
     if (fireAlert) {
-      notify();
-      setFireAlert(false);
       setCurrentTime(totalTime);
       if (!isRepeat) {
         setIsCountDown(false);
