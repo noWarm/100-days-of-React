@@ -47,7 +47,7 @@ export const DragLayer: FC = () => {
         return (
           <div className="w-min">
             <div className="h-6 bg-[#1B1F27] border-2 border-[#1B1F27]"></div>
-            <TimerBox />
+            <TimerBox isPreview={true}/>
           </div>
         );
       default:

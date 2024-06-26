@@ -8,7 +8,11 @@ import { ControlBtn } from "./ControlBtn";
 import { StartBtn } from "./StartBtn";
 import "../../App.css";
 
-export const TimerBox: FC = () => {
+interface TimerBoxProps {
+  isPreview: boolean;
+}
+
+export const TimerBox: FC<TimerBoxProps> = ({ isPreview }) => {
   const {
     currentTime,
     totalTime,
@@ -72,7 +76,7 @@ export const TimerBox: FC = () => {
     if (isCountDown) {
       if (currentTime === 0) {
         setFireAlert(true);
-      } else {
+      } else if (!isPreview) {
         setCurrentTime(currentTime - 1000);
       }
     }
