@@ -1,10 +1,9 @@
-import { FC, useContext } from "react";
-import { SideBarDisplayContext } from "../App";
+import { FC } from "react";
+import { isSideBarVisibleAtom } from "../App";
+import { useAtom } from "jotai";
 
 export const SideBar: FC = () => {
-  const { isSideBarVisible, setIsSideBarVisible } = useContext(
-    SideBarDisplayContext
-  );
+  const [isSideBarVisible, setIsSideBarVisible] = useAtom(isSideBarVisibleAtom);
 
   return (
     <div
@@ -15,7 +14,9 @@ export const SideBar: FC = () => {
       <div className="flex justify-end p-4">
         <div className="flex justify-center items-center p-2 border border-[#747476] rounded-md bg-[#454a55]">
           <svg
-            onClick={() => setIsSideBarVisible(false)}
+            onClick={() => {
+              setIsSideBarVisible(false);
+            }}
             className="w-6 h-6 fill-[#6b717e] hover:fill-white transition"
             width="24"
             height="24"
