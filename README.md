@@ -1,9 +1,9 @@
 I will code one simple react app per day for practice.
 
-day1: steam clock clone
+#1 2024-06-24: steam clock clone
 
-day2: added drag and drop to the clock
+#2 2024-06-25: added drag and drop to the clock
 
-day3:
+#3 2024-06-26:
 - cleanup steam clock clone
 - sidebar with jotai
