@@ -44,11 +44,11 @@ export const DraggableBox: FC<DraggableBoxProps> = ({ left, top }) => {
 
   return (
     <div ref={preview} style={getStyles(left, top, isDragging)}>
-      <div
-        ref={drag}
-        className="h-6 bg-[#1B1F27] border-2 border-[#1B1F27]"
-      ></div>
-      <TimerBox isPreview={false}/>
+      <div ref={drag}>
+        <div className="h-0.5 bg-gradient-to-r from-[#1B1F27] via-[#2056CB] to-[#1B1F27]"></div>
+        <div className="h-6 bg-[#1B1F27] border-2 border-[#1B1F27]" />
+      </div>
+      <TimerBox isPreview={false} />
     </div>
   );
 };
