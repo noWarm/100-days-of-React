@@ -29,15 +29,18 @@ export const TimerBox: FC<TimerBoxProps> = ({ isPreview }) => {
   const [fireAlert, setFireAlert] = useAtom(fireAlertAtom);
 
   const millisecToHours = (t: number) => {
+    if (t < 0) return "00";
     const hh = Math.floor(t / 3600000);
     return String(hh).padStart(2, "0");
   };
   const millisecToMinutes = (t: number) => {
+    if (t < 0) return "00";
     const hh = Math.floor(t / 3600000);
     const mm = Math.floor((t - 3600000 * hh) / 60000);
     return String(mm).padStart(2, "0");
   };
   const millisecToSeconds = (t: number) => {
+    if (t < 0) return "00";
     const hh = Math.floor(t / 3600000);
     const mm = Math.floor((t - 3600000 * hh) / 60000);
     const ss = Math.floor((t - 3600000 * hh - mm * 60000) / 1000);
@@ -70,7 +73,7 @@ export const TimerBox: FC<TimerBoxProps> = ({ isPreview }) => {
 
   useInterval(() => {
     if (isCountDown) {
-      if (currentTime === 1000 && fireAlert === false) {
+      if (currentTime === 0 && fireAlert === false) {
         setFireAlert(true);
         notify();
       } else if (!isPreview) {
