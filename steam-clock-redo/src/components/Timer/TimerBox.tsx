@@ -1,30 +1,29 @@
 import type { FC } from "react";
-import { useContext, useEffect } from "react";
-import { TimerContext } from "../../App";
+import { useCallback, useEffect } from "react";
 import { TimeBtn } from "./TimeBtn";
 import { useInterval } from "usehooks-ts";
-import { toast } from "react-toastify";
 import { ControlBtn } from "./ControlBtn";
 import { StartBtn } from "./StartBtn";
 import "../../App.css";
+import { useAtom } from "jotai";
+import {
+  currentTimeAtom,
+  fireAlertAtom,
+  isCountDownAtom,
+  isRepeatAtom,
+  totalTimeAtom,
+} from "../../App";
 
 interface TimerBoxProps {
   isPreview: boolean;
 }
 
 export const TimerBox: FC<TimerBoxProps> = ({ isPreview }) => {
-  const {
-    currentTime,
-    totalTime,
-    fireAlert,
-    isCountDown,
-    isRepeat,
-    setCurrentTime,
-    setFireAlert,
-    setIsCountDown,
-    setIsRepeat,
-    setTotalTime,
-  } = useContext(TimerContext);
+  const [totalTime, setTotalTime] = useAtom(totalTimeAtom);
+  const [currentTime, setCurrentTime] = useAtom(currentTimeAtom);
+  const [isRepeat, setIsRepeat] = useAtom(isRepeatAtom);
+  const [isCountDown, setIsCountDown] = useAtom(isCountDownAtom);
+  const [fireAlert, setFireAlert] = useAtom(fireAlertAtom);
 
   const millisecToHours = (t: number) => {
     const hh = Math.floor(t / 3600000);
@@ -42,27 +41,21 @@ export const TimerBox: FC<TimerBoxProps> = ({ isPreview }) => {
     return String(ss).padStart(2, "0");
   };
 
-  const repeatOnclickHandler = () => {
+  const repeatOnclickHandler = useCallback(() => {
     setIsRepeat(!isRepeat);
-  };
+  }, [isRepeat]);
 
-  const resetOnclickHandler = () => {
+  const resetOnclickHandler = useCallback(() => {
     setCurrentTime(totalTime);
-  };
+  }, [totalTime]);
 
-  const clearOnclickHandler = () => {
+  const clearOnclickHandler = useCallback(() => {
     setTotalTime(0);
     setCurrentTime(0);
     setIsCountDown(false);
-  };
+  }, []);
 
-  const addTimeOnClickHandler = (t: number) => {
-    t *= 1000;
-    setTotalTime(totalTime + t);
-    setCurrentTime(currentTime + t);
-  };
-
-  const startOnclickHandler = () => {
+  const startOnclickHandler = useCallback(() => {
     if (!isCountDown) {
       if (totalTime !== 0) {
         setIsCountDown(true);
@@ -70,7 +63,7 @@ export const TimerBox: FC<TimerBoxProps> = ({ isPreview }) => {
     } else {
       setIsCountDown(false);
     }
-  };
+  }, [isCountDown, totalTime]);
 
   useInterval(() => {
     if (isCountDown) {
@@ -112,26 +105,11 @@ export const TimerBox: FC<TimerBoxProps> = ({ isPreview }) => {
           </div>
         </div>
         <div className="flex gap-x-2 my-2">
-          <TimeBtn
-            text={"1s"}
-            onClickHandler={() => addTimeOnClickHandler(1)}
-          ></TimeBtn>
-          <TimeBtn
-            text={"5s"}
-            onClickHandler={() => addTimeOnClickHandler(5)}
-          ></TimeBtn>
-          <TimeBtn
-            text={"30s"}
-            onClickHandler={() => addTimeOnClickHandler(30)}
-          ></TimeBtn>
-          <TimeBtn
-            text={"1m"}
-            onClickHandler={() => addTimeOnClickHandler(60)}
-          ></TimeBtn>
-          <TimeBtn
-            text={"5m"}
-            onClickHandler={() => addTimeOnClickHandler(300)}
-          ></TimeBtn>
+          <TimeBtn text={"1s"} time={1}></TimeBtn>
+          <TimeBtn text={"5s"} time={5}></TimeBtn>
+          <TimeBtn text={"30s"} time={30}></TimeBtn>
+          <TimeBtn text={"1m"} time={60}></TimeBtn>
+          <TimeBtn text={"5m"} time={300}></TimeBtn>
         </div>
 
         <div className="flex gap-x-2 my-2">

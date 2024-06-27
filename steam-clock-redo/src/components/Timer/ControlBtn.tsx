@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, memo } from "react";
 
 interface ControlBtnProps {
   text: string;
@@ -6,28 +6,27 @@ interface ControlBtnProps {
   onClickHandler: () => void;
 }
 
-export const ControlBtn: FC<ControlBtnProps> = ({
-  text,
-  isRepeatHighlight = false,
-  onClickHandler,
-}) => {
-  if (isRepeatHighlight) {
-    return (
-      <div
-        className="grow py-3 repeat-highlight text-center"
-        onClick={onClickHandler}
-      >
-        {text}
-      </div>
-    );
-  } else {
-    return (
-      <div
-        className="grow py-3 time-ctrl-btn-color text-center"
-        onClick={onClickHandler}
-      >
-        {text}
-      </div>
-    );
+export const ControlBtn: FC<ControlBtnProps> = memo(
+  ({ text, isRepeatHighlight = false, onClickHandler }) => {
+    console.log("ctrl box", text);
+    if (isRepeatHighlight) {
+      return (
+        <div
+          className="grow py-3 repeat-highlight text-center"
+          onClick={onClickHandler}
+        >
+          {text}
+        </div>
+      );
+    } else {
+      return (
+        <div
+          className="grow py-3 time-ctrl-btn-color text-center"
+          onClick={onClickHandler}
+        >
+          {text}
+        </div>
+      );
+    }
   }
-};
+);
