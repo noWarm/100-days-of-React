@@ -13,6 +13,9 @@ import {
   isRepeatAtom,
   totalTimeAtom,
 } from "../../App";
+import { toast } from "react-toastify";
+
+const sound = new Audio("sound.wav");
 
 interface TimerBoxProps {
   isPreview: boolean;
@@ -67,8 +70,9 @@ export const TimerBox: FC<TimerBoxProps> = ({ isPreview }) => {
 
   useInterval(() => {
     if (isCountDown) {
-      if (currentTime === 0) {
+      if (currentTime === 1000 && fireAlert === false) {
         setFireAlert(true);
+        notify();
       } else if (!isPreview) {
         setCurrentTime(currentTime - 1000);
       }
@@ -78,11 +82,17 @@ export const TimerBox: FC<TimerBoxProps> = ({ isPreview }) => {
   useEffect(() => {
     if (fireAlert) {
       setCurrentTime(totalTime);
+      setFireAlert(false);
       if (!isRepeat) {
         setIsCountDown(false);
       }
     }
-  }, [fireAlert]);
+  }, [fireAlert, isRepeat]);
+
+  const notify = () => {
+    sound.play();
+    toast("Timer Expired!");
+  };
 
   return (
     <div className="cursor-default">
