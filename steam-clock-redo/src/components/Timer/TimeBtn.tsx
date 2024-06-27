@@ -1,6 +1,7 @@
 import { useAtom } from "jotai";
 import { FC, useCallback } from "react";
 import { currentTimeAtom, totalTimeAtom } from "../../App";
+import { MAX_TIME } from "../../constants/time";
 
 interface TimeBtnProps {
   text: string;
@@ -13,8 +14,11 @@ export const TimeBtn: FC<TimeBtnProps> = ({ text, time }) => {
 
   const addTimeOnClickHandler = () => {
     let t = time * 1000;
-    setTotalTime(totalTime + t);
-    setCurrentTime(currentTime + t);
+    let newTotalTime = totalTime + t > MAX_TIME ? MAX_TIME : totalTime + t;
+    let newCurrentTime =
+      currentTime + t > MAX_TIME ? MAX_TIME : currentTime + t;
+    setTotalTime(newTotalTime);
+    setCurrentTime(newCurrentTime);
   };
 
   return (

@@ -8,7 +8,6 @@ interface ControlBtnProps {
 
 export const ControlBtn: FC<ControlBtnProps> = memo(
   ({ text, isRepeatHighlight = false, onClickHandler }) => {
-    console.log("ctrl box", text);
     if (isRepeatHighlight) {
       return (
         <div
