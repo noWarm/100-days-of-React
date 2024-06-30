@@ -1,27 +1,23 @@
-import { CSSProperties, FC } from "react";
+import { CSSProperties, useEffect } from "react";
 import "./App.css";
-
-const DefaultBoard8x8 = [
-  [0, 0, 1, 2, 2, 2, 3, 3],
-  [0, 0, 1, 4, 4, 5, 3, 3],
-  [6, 6, 1, 4, 4, 5, 3, 3],
-  [6, 6, 7, 7, 7, 8, 8, 8],
-  [9, 9, 7, 7, 7, 10, 10, 11],
-  [12, 13, 13, 14, 14, 10, 10, 11],
-  [12, 13, 13, 15, 15, 15, 16, 16],
-  [12, 13, 13, 15, 15, 15, 16, 16],
-];
-
-const GAP_SIZE_PX = 4;
-const HOLE_PADDING_SIZE_PX = 8;
-const HOLE_SIZE_PX = 32;
-const TILE_LENGTH_PX = HOLE_PADDING_SIZE_PX * 2 + HOLE_SIZE_PX;
-const BOARD_SIZE = 8;
+import {
+  BOARD_SIZE,
+  DefaultBoard8x8,
+  GAP_SIZE_PX,
+  PLAYER,
+  TILE_LENGTH_PX,
+} from "./constants/render";
+import { Tile, TileProps } from "./components/Tile";
+import { atom, useAtom, useAtomValue } from "jotai";
+import { getAllHoles, getPlaceableHoles } from "./logic/validMove";
 
 const GetTilesFromBoard = (board: number[][]) => {
   let curMaxTileId = -1;
 
-  let Tiles = new Set<TileProps>();
+  let Tiles = new Map<number, TileProps>();
+  let HoleMapTileId = Array.from({ length: BOARD_SIZE }, () =>
+    new Array(BOARD_SIZE).fill(0)
+  );
 
   for (let i = 0; i < BOARD_SIZE; i++) {
     for (let j = 0; j < BOARD_SIZE; j++) {
@@ -42,23 +38,39 @@ const GetTilesFromBoard = (board: number[][]) => {
           colHoles++;
         }
 
-        Tiles.add({
+        Tiles.set(curTileId, {
           id: curTileId,
           row: i,
           col: j,
           rowHoles,
           colHoles,
+          Holes: Array.from({ length: rowHoles }, () =>
+            Array.from({ length: colHoles }, () => ({ marble: null }))
+          ),
         });
+        for (let _pi = 0; _pi < rowHoles; _pi++) {
+          for (let _pj = 0; _pj < colHoles; _pj++) {
+            HoleMapTileId[i + _pi][j + _pj] = curTileId;
+          }
+        }
         curMaxTileId = curTileId;
       }
     }
   }
-  return Tiles;
+  return { HoleMapTileId, Tiles };
 };
 
-const renderBoard = (tiles: Set<TileProps>) => {
-  const width = BOARD_SIZE * TILE_LENGTH_PX + (BOARD_SIZE-1) * GAP_SIZE_PX;
-  const height = BOARD_SIZE * TILE_LENGTH_PX + (BOARD_SIZE-1) * GAP_SIZE_PX;
+const GetBoardDataFromBoard = (
+  board: number[][]
+): { marble: PLAYER | null }[][] => {
+  return new Array(board.length).fill(
+    new Array(board[0].length).fill({ marble: null })
+  );
+};
+
+const renderBoard = (tiles: Map<number, TileProps>) => {
+  const width = BOARD_SIZE * TILE_LENGTH_PX + (BOARD_SIZE - 1) * GAP_SIZE_PX;
+  const height = BOARD_SIZE * TILE_LENGTH_PX + (BOARD_SIZE - 1) * GAP_SIZE_PX;
   const style: CSSProperties = {
     width: `${width}px`,
     height: `${height}px`,
@@ -66,63 +78,62 @@ const renderBoard = (tiles: Set<TileProps>) => {
   return (
     <div className="relative" style={style}>
       {Array.from(tiles).map((el) => (
-        <Tile {...el} />
+        <Tile {...el[1]} />
       ))}
     </div>
   );
 };
 
-const Hole = () => {
-  const style: CSSProperties = {
-    padding: `${HOLE_PADDING_SIZE_PX}px`,
-  };
-
-  return (
-    <div className="relative" style={style}>
-      <div className={`rounded-full bg-[#D7C0AB] w-[32px] h-[32px]`}></div>
-    </div>
-  );
-};
-
-const Tile: FC<TileProps> = ({ id, row, col, rowHoles, colHoles }) => {
-  const style: CSSProperties = {
-    position: "absolute",
-    display: "grid",
-    gridTemplateColumns: `repeat(${colHoles}, 1fr)`,
-    gridGap: `${GAP_SIZE_PX}px`,
-    top: `${row * TILE_LENGTH_PX + row * GAP_SIZE_PX}px`,
-    left: `${col * TILE_LENGTH_PX + (col - 1) * GAP_SIZE_PX}px`,
-  };
-
-  return (
-    <div
-      className={` bg-[#F2DBC2]  hover:outline-white hover:outline transition-all duration-75 rounded-sm`}
-      style={style}
-    >
-      {[...Array(rowHoles * colHoles).keys()].map(() => (
-        <Hole />
-      ))}
-    </div>
-  );
-};
-
-interface TileProps {
-  id: number;
-  row: number;
-  col: number;
-  rowHoles: number;
-  colHoles: number;
+export interface LastMarble {
+  row: number | undefined;
+  col: number | undefined;
+  tileId: number | undefined;
 }
 
+export interface LastMarbleMoves {
+  redLast: LastMarble | null;
+  blackLast: LastMarble | null;
+  lastPlayer: PLAYER | null;
+}
+
+export const CurrentPlayerAtom = atom(PLAYER.RED);
+export const LastMarbleMovesAtom = atom<LastMarbleMoves>({
+  redLast: null,
+  blackLast: null,
+  lastPlayer: null,
+});
+export const { HoleMapTileId, Tiles: GameTileState } =
+  GetTilesFromBoard(DefaultBoard8x8);
+export const GameTileStateAtom = atom(GameTileState);
+export const PlaceableHolesAtom = atom(getAllHoles());
+export const BoardDataAtom = atom(GetBoardDataFromBoard(DefaultBoard8x8));
+export const IsGameEndAtom = atom(false);
+
 function App() {
-  let tiles = GetTilesFromBoard(DefaultBoard8x8);
-  console.log([...tiles.entries()]);
+  const [placeableHoles, setPlaceableHoles] = useAtom(PlaceableHolesAtom);
+  const [gameTileState, setGameTileState] = useAtom(GameTileStateAtom);
+  const [boardData, setBoardData] = useAtom(BoardDataAtom);
+  const [currentPlayer, setCurrentPlayer] = useAtom(CurrentPlayerAtom);
+  const lastMarbleMoves = useAtomValue(LastMarbleMovesAtom);
+  const [isGameEnd, setIsGameEnd] = useAtom(IsGameEndAtom);
+
+  useEffect(() => {
+    let placeableHoles = getPlaceableHoles(lastMarbleMoves);
+    setPlaceableHoles(getPlaceableHoles(lastMarbleMoves));
+    if (placeableHoles.length == 0) {
+      setIsGameEnd(true);
+    }
+  }, [gameTileState]);
+
+  const animatePiece = () => {};
+
   return (
     <div>
+      <button className="border border-white" onClick={animatePiece}>
+        Animate Piece
+      </button>
       <div className="flex justify-center text-center items-center min-h-screen">
-        <div>
-          {renderBoard(tiles)}
-        </div>
+        <div>{renderBoard(GameTileState)}</div>
       </div>
     </div>
   );
