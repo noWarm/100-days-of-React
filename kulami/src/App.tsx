@@ -10,6 +10,7 @@ import {
 import { Tile, TileProps } from "./components/Tile";
 import { atom, useAtom, useAtomValue } from "jotai";
 import { getAllHoles, getPlaceableHoles } from "./logic/validMove";
+import { GetRandomizedTileBoard } from "./logic/randomizer";
 
 const GetTilesFromBoard = (board: number[][]) => {
   let curMaxTileId = -1;
@@ -63,8 +64,8 @@ const GetTilesFromBoard = (board: number[][]) => {
 const GetBoardDataFromBoard = (
   board: number[][]
 ): { marble: PLAYER | null }[][] => {
-  return new Array(board.length).fill(
-    new Array(board[0].length).fill({ marble: null })
+  return  Array.from({ length: board.length }, () =>
+    Array.from({ length: board[0].length }, () => ({ marble: null }))
   );
 };
 
@@ -109,6 +110,8 @@ export const PlaceableHolesAtom = atom(getAllHoles());
 export const BoardDataAtom = atom(GetBoardDataFromBoard(DefaultBoard8x8));
 export const IsGameEndAtom = atom(false);
 
+console.log(GetRandomizedTileBoard());
+
 function App() {
   const [placeableHoles, setPlaceableHoles] = useAtom(PlaceableHolesAtom);
   const [gameTileState, setGameTileState] = useAtom(GameTileStateAtom);
@@ -129,12 +132,12 @@ function App() {
 
   return (
     <div>
-      <button className="border border-white" onClick={animatePiece}>
+      {/* <button className="border border-white" onClick={animatePiece}>
         Animate Piece
       </button>
       <div className="flex justify-center text-center items-center min-h-screen">
         <div>{renderBoard(GameTileState)}</div>
-      </div>
+      </div> */}
     </div>
   );
 }
