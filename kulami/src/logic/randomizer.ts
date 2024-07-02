@@ -151,7 +151,11 @@ export const AddTiles = (
     return;
   }
 
-  validChoices.sort((a, b) => b.connection - a.connection);
+  if (curTileId <= 14) {
+    validChoices.sort((a, b) => b.connection - a.connection);
+  } else {
+    validChoices.sort((a, b) => a.connection - b.connection);
+  }
 
   let prevBoardState = structuredClone(generatedBoardState);
 
