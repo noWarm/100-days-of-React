@@ -1,27 +1,15 @@
-// x x x - - x
-// x x - 0 0 -
-// x x - 0 0 -
-// x x x - - x
-// x x x x x x
-
-import { hasClosedLoop, printBoard } from "../utilities/board";
-
-// 1 1 1
-
-// 1
-// 1 2 2 2
-// 1
-
 function getRandomIntInclusive(max: number) {
   return Math.floor(Math.random() * (max + 1));
 }
 
 export const EmptyCell = "xx";
 export const ConnectableCell = "..";
+export const MarkedCell = "MM";
 export type GeneratedBoardCell =
   | number
   | typeof EmptyCell
-  | typeof ConnectableCell;
+  | typeof ConnectableCell
+  | typeof MarkedCell;
 type TileEntity = [number, number];
 export const MAX_BOARD_SIZE = 10;
 
@@ -39,6 +27,16 @@ let generatedBoard: GeneratedBoardCell[][] = Array.from(
 );
 
 export const GetRandomizedTileBoard = () => {
+  while (!isDone) {
+    generatedBoard = Array.from({ length: MAX_BOARD_SIZE }, () =>
+      Array.from({ length: MAX_BOARD_SIZE }, () => EmptyCell)
+    );
+    TryGetRandomizedTileBoard();
+  }
+  return generatedBoard;
+};
+
+export const TryGetRandomizedTileBoard = () => {
   const h_3x2 = getRandomIntInclusive(4);
   const h_3x1 = getRandomIntInclusive(4);
   const h_2x1 = getRandomIntInclusive(4);
@@ -95,7 +93,7 @@ export const GetRandomizedTileBoard = () => {
     }
   }
 
-  AddTiles(1, tilesPool, generatedBoard);
+  AddTiles(1, tilesPool, structuredClone(generatedBoard));
   return generatedBoard;
 };
 
@@ -107,9 +105,6 @@ export const AddTiles = (
   if (isDone) {
     return;
   }
-  console.log("curTileId", curTileId);
-  printBoard(generatedBoardState);
-
   if (curTileId == 17) {
     isDone = true;
     for (let i = 0; i < MAX_BOARD_SIZE; i++) {
@@ -120,7 +115,6 @@ export const AddTiles = (
     return;
   }
 
-  console.log("tilesPool", tilesPool);
   let tile = tilesPool.shift();
   if (tile == undefined) {
     return;
@@ -129,9 +123,9 @@ export const AddTiles = (
   let tileCols = tile![1];
   let overlapConnectableCount = 0;
   let isOk = true;
-  let validChoices: [number, number][] = [];
-  for (let i = 0; i < MAX_BOARD_SIZE - tile![0]; i++) {
-    for (let j = 0; j < MAX_BOARD_SIZE - tile![0]; j++) {
+  let validChoices: { connection: number; rowcol: [number, number] }[] = [];
+  for (let i = 0; i < MAX_BOARD_SIZE - tileRows + 1; i++) {
+    for (let j = 0; j < MAX_BOARD_SIZE - tileCols + 1; j++) {
       overlapConnectableCount = 0;
       isOk = true;
       for (let ti = 0; ti < tileRows; ti++) {
@@ -145,23 +139,27 @@ export const AddTiles = (
         }
       }
       if (isOk && overlapConnectableCount > 0) {
-        validChoices.push([i, j]);
+        validChoices.push({
+          connection: overlapConnectableCount,
+          rowcol: [i, j],
+        });
       }
     }
   }
 
   if (validChoices.length == 0) {
-    return null;
+    return;
   }
 
-  while (validChoices.length) {
-    let randomIdx = getRandomIntInclusive(validChoices.length - 1);
-    console.log("curTileId", curTileId);
-    console.log("randomIdx", randomIdx);
-    console.log("validChoices", validChoices);
+  validChoices.sort((a, b) => b.connection - a.connection);
 
-    let randomTileRow = validChoices[randomIdx][0];
-    let randomTileCol = validChoices[randomIdx][1];
+  let prevBoardState = structuredClone(generatedBoardState);
+
+  while (validChoices.length) {
+    let randomIdx = 0;
+
+    let randomTileRow = validChoices[randomIdx].rowcol[0];
+    let randomTileCol = validChoices[randomIdx].rowcol[1];
     validChoices.splice(randomIdx, 1);
     for (let ti = 0; ti < tileRows; ti++) {
       for (let tj = 0; tj < tileCols; tj++) {
@@ -188,10 +186,96 @@ export const AddTiles = (
     }
 
     // if no closed loop
-    if (!hasClosedLoop(generatedBoardState)) {
-        AddTiles(curTileId + 1, tilesPool, generatedBoardState);
+    if (!HasClosedLoop(structuredClone(generatedBoardState))) {
+      AddTiles(curTileId + 1, tilesPool, structuredClone(generatedBoardState));
+    } else {
+      generatedBoardState = prevBoardState;
+      continue;
     }
   }
 
-  return null;
+  return;
+};
+
+export const HasClosedLoop = (board: GeneratedBoardCell[][]): boolean => {
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[0].length; j++) {
+      if (
+        board[i][j] === ConnectableCell &&
+        !CanReachEdge(i, j, structuredClone(board))
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
+export const isBounded = (row: number, col: number): boolean => {
+  return row >= 0 && col >= 0 && row < MAX_BOARD_SIZE && col < MAX_BOARD_SIZE;
+};
+
+export const isAtRim = (row: number, col: number): boolean => {
+  return (
+    row == 0 ||
+    col == 0 ||
+    row == MAX_BOARD_SIZE - 1 ||
+    col == MAX_BOARD_SIZE - 1
+  );
+};
+
+export const CanReachEdge = (
+  row: number,
+  col: number,
+  board: GeneratedBoardCell[][]
+) => {
+  if (
+    (board[row][col] == ConnectableCell || board[row][col] == EmptyCell) &&
+    isAtRim(row, col)
+  ) {
+    return true;
+  }
+
+  let pool: [number, number][] = [];
+  for (let i = 0; i < EDGE_CHECK.length; i++) {
+    let r = row + EDGE_CHECK[i][0];
+    let c = col + EDGE_CHECK[i][1];
+    if (
+      isBounded(r, c) &&
+      (board[r][c] === EmptyCell || board[r][c] === ConnectableCell)
+    ) {
+      pool.push([r, c]);
+    }
+  }
+
+  board[row][col] = MarkedCell;
+
+  while (pool.length) {
+    let cell = pool.shift();
+    if (cell == undefined) {
+      break;
+    }
+    let r = cell[0];
+    let c = cell[1];
+    if (isAtRim(r, c)) {
+      if (board[r][c] === EmptyCell || board[r][c] === ConnectableCell)
+        return true;
+    } else {
+      for (let i = 0; i < EDGE_CHECK.length; i++) {
+        let nr = r + EDGE_CHECK[i][0];
+        let nc = c + EDGE_CHECK[i][1];
+        if (board[nr][nc] === EmptyCell || board[nr][nc] === ConnectableCell) {
+          if (
+            isAtRim(nr, nc) &&
+            (board[nr][nc] === EmptyCell || board[nr][nc] === ConnectableCell)
+          ) {
+            return true;
+          }
+          pool.push([nr, nc]);
+        }
+      }
+      board[r][c] = MarkedCell;
+    }
+  }
+  return false;
 };

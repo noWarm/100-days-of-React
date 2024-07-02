@@ -132,12 +132,12 @@ function App() {
 
   return (
     <div>
-      {/* <button className="border border-white" onClick={animatePiece}>
+      <button className="border border-white" onClick={animatePiece}>
         Animate Piece
       </button>
       <div className="flex justify-center text-center items-center min-h-screen">
         <div>{renderBoard(GameTileState)}</div>
-      </div> */}
+      </div>
     </div>
   );
 }
