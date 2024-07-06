@@ -1,0 +1,10 @@
+@font-face {
+  font-family: 'PlaywriteGBS';
+  src: url('./fonts/PlaywriteGBS/PlaywriteGBS-Regular.ttf') format('truetype');
+  /* Add additional font formats if necessary */
+  /* Specify the correct path to the font files */
+}
+
+.kulami-logo-display-font {
+  font-family: 'PlaywriteGBS', 'mono';
+}
