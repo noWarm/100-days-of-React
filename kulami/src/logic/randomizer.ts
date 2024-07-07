@@ -1,19 +1,14 @@
-function getRandomIntInclusive(max: number) {
-  return Math.floor(Math.random() * (max + 1));
-}
+import { MAX_BOARD_SIZE } from "../constants/render";
+import { getRandomIntInclusive } from "../utilities/random";
 
-export const EmptyCell = "xx";
-export const ConnectableCell = "..";
-export const MarkedCell = "MM";
-export type GeneratedBoardCell =
-  | number
-  | typeof EmptyCell
-  | typeof ConnectableCell
-  | typeof MarkedCell;
+const EMPTY_CELL = -1;
+const CONNECTABLE_CELL = -2;
+const MARKED_CELL = -3;
+
+export type GeneratedBoardCell = number;
 type TileEntity = [number, number];
-export const MAX_BOARD_SIZE = 10;
 
-export const EDGE_CHECK = [
+const EDGE_CHECK = [
   [1, 0],
   [-1, 0],
   [0, 1],
@@ -23,20 +18,20 @@ export const EDGE_CHECK = [
 let isDone = false;
 let generatedBoard: GeneratedBoardCell[][] = Array.from(
   { length: MAX_BOARD_SIZE },
-  () => Array.from({ length: MAX_BOARD_SIZE }, () => EmptyCell)
+  () => Array.from({ length: MAX_BOARD_SIZE }, () => EMPTY_CELL)
 );
 
-export const GetRandomizedTileBoard = () => {
+export const GetRandomizedTileBoard = (): number[][] => {
   while (!isDone) {
     generatedBoard = Array.from({ length: MAX_BOARD_SIZE }, () =>
-      Array.from({ length: MAX_BOARD_SIZE }, () => EmptyCell)
+      Array.from({ length: MAX_BOARD_SIZE }, () => EMPTY_CELL)
     );
     TryGetRandomizedTileBoard();
   }
   return generatedBoard;
 };
 
-export const TryGetRandomizedTileBoard = () => {
+const TryGetRandomizedTileBoard = (): number[][] => {
   const h_3x2 = getRandomIntInclusive(4);
   const h_3x1 = getRandomIntInclusive(4);
   const h_2x1 = getRandomIntInclusive(4);
@@ -84,10 +79,10 @@ export const TryGetRandomizedTileBoard = () => {
           j + EDGE_CHECK[k][1] >= 0 &&
           j + EDGE_CHECK[k][1] < MAX_BOARD_SIZE &&
           generatedBoard[i + EDGE_CHECK[k][0]][j + EDGE_CHECK[k][1]] ===
-            EmptyCell
+            EMPTY_CELL
         ) {
           generatedBoard[i + EDGE_CHECK[k][0]][j + EDGE_CHECK[k][1]] =
-            ConnectableCell;
+            CONNECTABLE_CELL;
         }
       }
     }
@@ -130,9 +125,9 @@ export const AddTiles = (
       isOk = true;
       for (let ti = 0; ti < tileRows; ti++) {
         for (let tj = 0; tj < tileCols; tj++) {
-          if (generatedBoardState[i + ti][j + tj] === ConnectableCell) {
+          if (generatedBoardState[i + ti][j + tj] === CONNECTABLE_CELL) {
             overlapConnectableCount++;
-          } else if (generatedBoardState[i + ti][j + tj] !== EmptyCell) {
+          } else if (generatedBoardState[i + ti][j + tj] !== EMPTY_CELL) {
             isOk = false;
             break;
           }
@@ -180,16 +175,15 @@ export const AddTiles = (
             j + EDGE_CHECK[k][1] >= 0 &&
             j + EDGE_CHECK[k][1] < MAX_BOARD_SIZE &&
             generatedBoardState[i + EDGE_CHECK[k][0]][j + EDGE_CHECK[k][1]] ===
-              EmptyCell
+              EMPTY_CELL
           ) {
             generatedBoardState[i + EDGE_CHECK[k][0]][j + EDGE_CHECK[k][1]] =
-              ConnectableCell;
+              CONNECTABLE_CELL;
           }
         }
       }
     }
 
-    // if no closed loop
     if (!HasClosedLoop(structuredClone(generatedBoardState))) {
       AddTiles(curTileId + 1, tilesPool, structuredClone(generatedBoardState));
     } else {
@@ -201,11 +195,11 @@ export const AddTiles = (
   return;
 };
 
-export const HasClosedLoop = (board: GeneratedBoardCell[][]): boolean => {
+const HasClosedLoop = (board: GeneratedBoardCell[][]): boolean => {
   for (let i = 0; i < board.length; i++) {
     for (let j = 0; j < board[0].length; j++) {
       if (
-        board[i][j] === ConnectableCell &&
+        board[i][j] === CONNECTABLE_CELL &&
         !CanReachEdge(i, j, structuredClone(board))
       ) {
         return true;
@@ -215,11 +209,11 @@ export const HasClosedLoop = (board: GeneratedBoardCell[][]): boolean => {
   return false;
 };
 
-export const isBounded = (row: number, col: number): boolean => {
+const isBounded = (row: number, col: number): boolean => {
   return row >= 0 && col >= 0 && row < MAX_BOARD_SIZE && col < MAX_BOARD_SIZE;
 };
 
-export const isAtRim = (row: number, col: number): boolean => {
+const isAtRim = (row: number, col: number): boolean => {
   return (
     row == 0 ||
     col == 0 ||
@@ -228,13 +222,13 @@ export const isAtRim = (row: number, col: number): boolean => {
   );
 };
 
-export const CanReachEdge = (
+const CanReachEdge = (
   row: number,
   col: number,
   board: GeneratedBoardCell[][]
 ) => {
   if (
-    (board[row][col] == ConnectableCell || board[row][col] == EmptyCell) &&
+    (board[row][col] == CONNECTABLE_CELL || board[row][col] == EMPTY_CELL) &&
     isAtRim(row, col)
   ) {
     return true;
@@ -246,13 +240,13 @@ export const CanReachEdge = (
     let c = col + EDGE_CHECK[i][1];
     if (
       isBounded(r, c) &&
-      (board[r][c] === EmptyCell || board[r][c] === ConnectableCell)
+      (board[r][c] === EMPTY_CELL || board[r][c] === CONNECTABLE_CELL)
     ) {
       pool.push([r, c]);
     }
   }
 
-  board[row][col] = MarkedCell;
+  board[row][col] = MARKED_CELL;
 
   while (pool.length) {
     let cell = pool.shift();
@@ -262,23 +256,23 @@ export const CanReachEdge = (
     let r = cell[0];
     let c = cell[1];
     if (isAtRim(r, c)) {
-      if (board[r][c] === EmptyCell || board[r][c] === ConnectableCell)
+      if (board[r][c] === EMPTY_CELL || board[r][c] === CONNECTABLE_CELL)
         return true;
     } else {
       for (let i = 0; i < EDGE_CHECK.length; i++) {
         let nr = r + EDGE_CHECK[i][0];
         let nc = c + EDGE_CHECK[i][1];
-        if (board[nr][nc] === EmptyCell || board[nr][nc] === ConnectableCell) {
+        if (board[nr][nc] === EMPTY_CELL || board[nr][nc] === CONNECTABLE_CELL) {
           if (
             isAtRim(nr, nc) &&
-            (board[nr][nc] === EmptyCell || board[nr][nc] === ConnectableCell)
+            (board[nr][nc] === EMPTY_CELL || board[nr][nc] === CONNECTABLE_CELL)
           ) {
             return true;
           }
           pool.push([nr, nc]);
         }
       }
-      board[r][c] = MarkedCell;
+      board[r][c] = MARKED_CELL;
     }
   }
   return false;

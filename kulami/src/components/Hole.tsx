@@ -6,7 +6,6 @@ import {
 } from "../constants/render";
 import { useAtom, useAtomValue } from "jotai";
 import {
-  BoardDataAtom,
   CurrentPlayerAtom,
   GameTileStateAtom,
   LastMarbleMovesAtom,
@@ -29,7 +28,6 @@ export const Hole: FC<HoleProps> = ({ row, col, tileId, isPlaceable }) => {
   const [currentPlayer, setCurrentPlayer] = useAtom(CurrentPlayerAtom);
   const [lastMarbleMoves, setLastMarbleMoves] = useAtom(LastMarbleMovesAtom);
   const [marble, setMarble] = useState<PLAYER | null>(null);
-  const [boardData, setBoardData] = useAtom(BoardDataAtom);
   const [gameTileState, setGameTileState] = useAtom(GameTileStateAtom);
 
   const onClickHandler = () => {

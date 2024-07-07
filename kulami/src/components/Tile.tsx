@@ -33,12 +33,12 @@ export const Tile: FC<TileProps> = ({ id, row, col, rowHoles, colHoles }) => {
     const holes = [];
     for (let i = 0; i < rowHoles; i++) {
       for (let j = 0; j < colHoles; j++) {
-        console.log(
-          "i,j,isHolePlaceable",
-          row+i,
-          col+j,
-          isHolePlaceable(row, col, placeableHoles)
-        );
+        // console.log(
+        //   "i,j,isHolePlaceable",
+        //   row+i,
+        //   col+j,
+        //   isHolePlaceable(row, col, placeableHoles)
+        // );
         holes.push(
           <Hole
             key={`${i}-${j}`}
@@ -50,7 +50,7 @@ export const Tile: FC<TileProps> = ({ id, row, col, rowHoles, colHoles }) => {
         );
       }
     }
-    console.log("--------");
+    // console.log("--------");
     return holes;
   };
 

@@ -12,5 +12,5 @@ export const BoardContainer: FC<BoardContainerProps> = ({  }) => {
   
  printBoard(gameBoard);
 
-  return <div className="flex flex-col justify-center relative h-screen">TODO</div>;
+  return <div className="flex flex-col justify-center items-center h-screen top-0 z-0 bg-blue-500">TODO</div>;
 };
