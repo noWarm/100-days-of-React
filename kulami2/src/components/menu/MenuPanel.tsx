@@ -1,4 +1,4 @@
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { GameBoardAtom } from "../../App";
 import {
@@ -9,16 +9,15 @@ import {
 import { getRandomIrregularBoard } from "../../logic/randomBoard";
 import { useSpring, animated, useTrail } from "@react-spring/web";
 import { useGesture } from "@use-gesture/react";
+import { GetTilesFromBoard } from "../../logic/render";
 
 interface MenuActionButtonProps {
   text: string;
-  // top: number;
   onclickHandler: () => void;
 }
 
 const MenuActionButton: FC<MenuActionButtonProps> = ({
   text,
-  // top,
   onclickHandler,
 }) => {
   const gameBoard = useAtomValue(GameBoardAtom);
@@ -66,8 +65,6 @@ const MenuActionButton: FC<MenuActionButtonProps> = ({
     },
   });
 
-  printBoard(gameBoard);
-
   return (
     <animated.div
       className="px-8 py-3 my-1 text-white text-xl font-mono select-none z-10"
@@ -94,7 +91,6 @@ export const MenuPanel: FC = () => {
     console.log("play game");
   };
 
-
   const MenuTextFnMap = [
     {
       text: "Play",
@@ -103,31 +99,40 @@ export const MenuPanel: FC = () => {
     },
     {
       text: "Default 8x8 Board",
-      onclickHandler: () => setGameBoard(getDefault8x8Board()),
+      onclickHandler: () => {
+        setGameBoard(getDefault8x8Board());
+      },
       top: 20,
     },
     {
       text: "Default Irregular Board",
-      onclickHandler: () => setGameBoard(getDefaultIrregularBoard()),
+      onclickHandler: () => {
+        setGameBoard(getDefaultIrregularBoard());
+      },
       top: 20,
     },
     {
       text: "Random Irregular Board",
-      onclickHandler: () => setGameBoard(getRandomIrregularBoard()),
+      onclickHandler: () => {
+        setGameBoard(getRandomIrregularBoard());
+      },
       top: 20,
     },
-  ]
+  ];
 
   return (
-      <div className="absolute flex flex-col my-52">
-        {trails.map((props, id) => (
-          <animated.div
-            className="relative"
-            style={{ ...props, top: `${MenuTextFnMap[id].top}px` }}
-          >
-            <MenuActionButton text={MenuTextFnMap[id].text} onclickHandler={MenuTextFnMap[id].onclickHandler} />
-          </animated.div>
-        ))}
+    <div className="absolute flex flex-col my-52">
+      {trails.map((props, id) => (
+        <animated.div
+          className="relative"
+          style={{ ...props, top: `${MenuTextFnMap[id].top}px` }}
+        >
+          <MenuActionButton
+            text={MenuTextFnMap[id].text}
+            onclickHandler={MenuTextFnMap[id].onclickHandler}
+          />
+        </animated.div>
+      ))}
     </div>
   );
 };

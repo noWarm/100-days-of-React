@@ -15,6 +15,25 @@ let generatedBoard: number[][] = Array.from({ length: MAX_BOARD_SIZE }, () =>
   Array.from({ length: MAX_BOARD_SIZE }, () => EMPTY_BOARDCELL)
 );
 
+const INITIAL_TILE_TYPE_IDS = {
+  2: [5, 9, 11, 14],
+  3: [1, 2, 8, 12],
+  4: [0, 4, 6, 10, 16],
+  6: [3, 7, 13, 15],
+};
+let tileTypeIds: {
+  [key: number]: number[];
+} = INITIAL_TILE_TYPE_IDS;
+let PostProcessTileIdMap = Array.from({ length: 17 }, () => -1);
+
+const resetPostProcessTileIdMap = () => {
+  PostProcessTileIdMap = Array.from({ length: 17 }, () => -1);
+};
+
+const resetTileTypeIds = () => {
+  tileTypeIds = structuredClone(INITIAL_TILE_TYPE_IDS);
+};
+
 type TileEntity = [number, number];
 
 export const getRandomIrregularBoard = (): number[][] => {
@@ -23,10 +42,13 @@ export const getRandomIrregularBoard = (): number[][] => {
     generatedBoard = Array.from({ length: MAX_BOARD_SIZE }, () =>
       Array.from({ length: MAX_BOARD_SIZE }, () => EMPTY_BOARDCELL)
     );
+    resetTileTypeIds();
+    resetPostProcessTileIdMap();
     TryGetRandomizedTileBoard();
   }
 
   convertNonHoleToEmptyBoardCell();
+  postProcessTileId();
   trimPadding();
   return generatedBoard;
 };
@@ -41,8 +63,18 @@ const convertNonHoleToEmptyBoardCell = () => {
   }
 };
 
+const postProcessTileId = () => {
+  for (let i = 0; i < MAX_BOARD_SIZE; i++) {
+    for (let j = 0; j < MAX_BOARD_SIZE; j++) {
+      if (generatedBoard[i][j] != EMPTY_BOARDCELL) {
+        generatedBoard[i][j] = PostProcessTileIdMap[generatedBoard[i][j]];
+      }
+    }
+  }
+};
+
 /**
- * - shrink the generatedBoard to the smallest size possible
+ * shrink the generatedBoard to the smallest size possible
  */
 const trimPadding = () => {
   let minR = MAX_BOARD_SIZE;
@@ -89,6 +121,7 @@ const TryGetRandomizedTileBoard = (): number[][] => {
   for (let i = 0; i < h_3x2; i++) tilesPool.push([2, 3]);
   for (let i = 0; i < h_3x1; i++) tilesPool.push([1, 3]);
   for (let i = 0; i < h_2x1; i++) tilesPool.push([1, 2]);
+
   for (let i = 0; i < v_3x2; i++) tilesPool.push([3, 2]);
   for (let i = 0; i < v_3x1; i++) tilesPool.push([3, 1]);
   for (let i = 0; i < v_2x1; i++) tilesPool.push([2, 1]);
@@ -98,6 +131,21 @@ const TryGetRandomizedTileBoard = (): number[][] => {
   for (let i = 0; i < 17; i++) {
     let idx = getRandomIntInclusive(tilesPool.length - 1);
     randomizedTilesPool.push(tilesPool[idx]);
+
+    // suppose we pick a 1x3 piece as the first piece,
+    // and written it in the generatedBoard as 0
+    // but we want to keep a consistent tileTypeId mapper
+    // so we'll have to post process that id to one of the
+    // 1x3 piece in `tileTypeIds[3]` (indexed by unique area) which are [1,2,8,12].
+    // Then We'll map 0 to 1 in the postprocessing and remove
+    // 1 from the array resulting in tileTypeIds[3]: [2,8,12].
+    let tileTypeByArea = tilesPool[idx][0] * tilesPool[idx][1];
+    let availableTileId = tileTypeIds[tileTypeByArea].shift();
+    if (availableTileId === undefined) {
+      throw new Error("error randomizing tile: unavailable tile id");
+    }
+    PostProcessTileIdMap[i] = availableTileId;
+
     tilesPool.splice(idx, 1);
   }
   tilesPool = randomizedTilesPool;
