@@ -4,14 +4,26 @@ export interface TileProps {
   col: number;
   rowHoles: number;
   colHoles: number;
-  Holes: Hole[][];
+  Holes: HoleInterface[][];
 }
 
-export interface Hole {
+export interface HoleInterface {
   marble: PLAYER | null;
 }
 
 export enum PLAYER {
   RED,
   BLACK,
+}
+
+export interface LastMarble {
+  row: number;
+  col: number;
+  tileId: number;
+}
+
+export interface LastMarbleMoves {
+  redLast: LastMarble | null;
+  blackLast: LastMarble | null;
+  lastPlayer: PLAYER | null;
 }

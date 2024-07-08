@@ -239,7 +239,7 @@ const AddTiles = (
     return;
   }
 
-  if (curTileId <= 14) {
+  if (curTileId <= 13) {
     validChoices.sort((a, b) => b.connection - a.connection);
   } else {
     validChoices.sort((a, b) => a.connection - b.connection);

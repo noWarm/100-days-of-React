@@ -1,6 +1,11 @@
 import { FC } from "react";
 import { useAtom, useAtomValue } from "jotai";
-import { GameBoardAtom } from "../../App";
+import {
+  GameBoardAtom,
+  GameTileStateAtom,
+  IsGameStartAtom,
+  PlaceableHolesAtom,
+} from "../../App";
 import {
   getDefault8x8Board,
   getDefaultIrregularBoard,
@@ -10,6 +15,7 @@ import { getRandomIrregularBoard } from "../../logic/randomBoard";
 import { useSpring, animated, useTrail } from "@react-spring/web";
 import { useGesture } from "@use-gesture/react";
 import { GetTilesFromBoard } from "../../logic/render";
+import { getAllHolePlaceable, getPlaceableHoles } from "../../logic/validMove";
 
 interface MenuActionButtonProps {
   text: string;
@@ -78,6 +84,10 @@ const MenuActionButton: FC<MenuActionButtonProps> = ({
 
 export const MenuPanel: FC = () => {
   const [gameBoard, setGameBoard] = useAtom(GameBoardAtom);
+  const [gameTileState, setGameTileState] = useAtom(GameTileStateAtom);
+  const [isGameStart, setIsGameStart] = useAtom(IsGameStartAtom);
+  const [placeableHoles, setIsPlaceableHoles] = useAtom(PlaceableHolesAtom);
+
   const [trails, api] = useTrail(
     4,
     () => ({
@@ -88,7 +98,7 @@ export const MenuPanel: FC = () => {
   );
 
   const playGame = () => {
-    console.log("play game");
+    setIsGameStart(true);
   };
 
   const MenuTextFnMap = [
@@ -100,32 +110,42 @@ export const MenuPanel: FC = () => {
     {
       text: "Default 8x8 Board",
       onclickHandler: () => {
-        setGameBoard(getDefault8x8Board());
+        let board = getDefault8x8Board();
+        setGameBoard(board);
+        setGameTileState(GetTilesFromBoard(board));
+        setIsPlaceableHoles(getAllHolePlaceable(board));
       },
       top: 20,
     },
     {
       text: "Default Irregular Board",
       onclickHandler: () => {
-        setGameBoard(getDefaultIrregularBoard());
+        let board = getDefaultIrregularBoard();
+        setGameBoard(board);
+        setGameTileState(GetTilesFromBoard(board));
+        setIsPlaceableHoles(getAllHolePlaceable(board));
       },
       top: 20,
     },
     {
       text: "Random Irregular Board",
       onclickHandler: () => {
-        setGameBoard(getRandomIrregularBoard());
+        let board = getRandomIrregularBoard();
+        setGameBoard(board);
+        setGameTileState(GetTilesFromBoard(board));
+        setIsPlaceableHoles(getAllHolePlaceable(board));
       },
       top: 20,
     },
   ];
 
   return (
-    <div className="absolute flex flex-col my-52">
+    <div className="absolute flex flex-col my-52 z-10">
       {trails.map((props, id) => (
         <animated.div
           className="relative"
           style={{ ...props, top: `${MenuTextFnMap[id].top}px` }}
+          key={id}
         >
           <MenuActionButton
             text={MenuTextFnMap[id].text}
