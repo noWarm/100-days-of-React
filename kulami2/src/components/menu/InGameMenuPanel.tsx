@@ -1,12 +1,12 @@
 import { FC, useEffect } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import {
+  CurrentPlayerAtom,
   GameBoardAtom,
   GameTileStateAtom,
   IsGameStartAtom,
-  NextGameBoardAtom,
+  LastMarbleMovesAtom,
   PlaceableHolesAtom,
-  TriggerBoardSetupAnimationAtom,
 } from "../../App";
 import {
   getDefault8x8Board,
@@ -18,13 +18,14 @@ import { useSpring, animated, useTrail } from "@react-spring/web";
 import { useGesture } from "@use-gesture/react";
 import { GetTilesFromBoard } from "../../logic/render";
 import { getAllHolePlaceable, getPlaceableHoles } from "../../logic/validMove";
+import { PLAYER } from "../../types/type";
 
-interface MenuActionButtonProps {
+interface InGameMenuActionButtonProps {
   text: string;
   onclickHandler: () => void;
 }
 
-const MenuActionButton: FC<MenuActionButtonProps> = ({
+const InGameMenuActionButton: FC<InGameMenuActionButtonProps> = ({
   text,
   onclickHandler,
 }) => {
@@ -75,7 +76,7 @@ const MenuActionButton: FC<MenuActionButtonProps> = ({
 
   return (
     <animated.div
-      className="px-8 py-3 my-1 text-white text-xl font-mono select-none"
+      className="px-8 py-3 my-1 text-white text-xl font-mono select-none z-10"
       style={springs}
       {...bind()}
     >
@@ -84,113 +85,87 @@ const MenuActionButton: FC<MenuActionButtonProps> = ({
   );
 };
 
-export const MenuPanel: FC = () => {
+export const InGameMenuPanel: FC = () => {
   const [gameBoard, setGameBoard] = useAtom(GameBoardAtom);
   const [gameTileState, setGameTileState] = useAtom(GameTileStateAtom);
-  const [placeableHoles, setIsPlaceableHoles] = useAtom(PlaceableHolesAtom);
   const [isGameStart, setIsGameStart] = useAtom(IsGameStartAtom);
-  const [triggerBoardSetupAnimation, setTriggerBoardSetupAnimation] = useAtom(TriggerBoardSetupAnimationAtom);
-  const [nextGameBoard, setNextGameBoard] = useAtom(NextGameBoardAtom);
+  const [placeableHoles, setIsPlaceableHoles] = useAtom(PlaceableHolesAtom);
+  const [lastMarbleMove, setLastMarbleMoves] = useAtom(LastMarbleMovesAtom);
+  const [currentPlayer, setCurrentPlayer] = useAtom(CurrentPlayerAtom);
 
   const [trails, api] = useTrail(
-    5,
+    2,
     () => ({
-      from: { left: "-100%", z: 10 },
+      from: { left: "-100%" },
     }),
     []
   );
 
-  useEffect(() => {
-    api.start(() => ({
-      to: {
-        left: "0",
-        z: 10,
-      },
-    }));
-  }, []);
+  const animateTiles = () => {
+
+  }
+
 
   useEffect(() => {
     if (isGameStart) {
       api.start(() => ({
         to: {
-          left: "-100%",
-          z: 5,
+          left: "0",
         },
       }));
-    } else {
+    }    
+    return () => {
       api.start(() => ({
         to: {
-          left: "0",
-          z: 5,
+          left: "-100%",
         },
       }));
-
     }
-  }, [isGameStart]);
+  }, []);
 
-  const playGame = () => {
-    setIsGameStart(true);
-  };
-
-  const animateTiles = (board: number[][]) => {
-    setNextGameBoard(board);
-  };
-
-  const MenuTextFnMap = [
+  const InGameMenuTextFnMap = [
     {
-      text: "Play",
-      onclickHandler: playGame,
+      text: "Restart",
+      onclickHandler: () => {
+        setGameTileState(GetTilesFromBoard(gameBoard));
+        setIsPlaceableHoles(getAllHolePlaceable(gameBoard));
+        setLastMarbleMoves({
+          redLast: null,
+          blackLast: null,
+          lastPlayer: null,
+        });
+        setCurrentPlayer(PLAYER.RED);
+      },
       top: 0,
     },
     {
-      text: "Default 8x8 Board",
+      text: "Quit",
       onclickHandler: () => {
-        let board = getDefault8x8Board();
-        animateTiles(board);
+        setIsGameStart(false);
+        setGameTileState(GetTilesFromBoard(gameBoard));
+        setIsPlaceableHoles(getAllHolePlaceable(gameBoard));
+        setLastMarbleMoves({
+          redLast: null,
+          blackLast: null,
+          lastPlayer: null,
+        });
+        setCurrentPlayer(PLAYER.RED);
       },
-      top: 20,
-    },
-    {
-      text: "Default Irregular Board",
-      onclickHandler: () => {
-        let board = getDefaultIrregularBoard();
-        animateTiles(board);
-      },
-      top: 20,
-    },
-    {
-      text: "Random Irregular Board",
-      onclickHandler: () => {
-        let board = getRandomIrregularBoard();
-        animateTiles(board);
-      },
-      top: 20,
-    },
-    {
-      text: "Edit Board (Coming someday)",
-      onclickHandler: () => {
-        console.log("editing board with dnd");
-        // show grids
-        // enable dnd
-        // enable rotation tooltip action as well
-        // dnd will snap to grid
-        // the dnd will show red highlight when a piece overlaps
-      },
-      top: 20,
+      top: 0,
     },
   ];
 
   return (
-    <div className="absolute flex flex-col my-52">
+    <div className="absolute flex flex-col my-52 z-5">
       {trails.map((props, id) => (
         <animated.div
           className="relative"
-          style={{ ...props, top: `${MenuTextFnMap[id].top}px` }}
+          style={{ ...props, top: `${InGameMenuTextFnMap[id].top}px` }}
           key={id}
         >
-          <MenuActionButton
-            text={MenuTextFnMap[id].text}
-            onclickHandler={MenuTextFnMap[id].onclickHandler}
+          <InGameMenuActionButton
+            text={InGameMenuTextFnMap[id].text}
+            onclickHandler={InGameMenuTextFnMap[id].onclickHandler}
           />
         </animated.div>
       ))}

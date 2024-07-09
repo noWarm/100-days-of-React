@@ -17,12 +17,12 @@ export interface TileProps {
 export const Tile: FC<TileProps> = ({ id, row, col, rowHoles, colHoles }) => {
   const placeableHoles = useAtomValue(PlaceableHolesAtom);
   const style: CSSProperties = {
-    position: "absolute",
+    // position: "absolute",
     display: "grid",
     gridTemplateColumns: `repeat(${colHoles}, 1fr)`,
     gridGap: `${GAP_SIZE_PX}px`,
-    top: `${row * TILE_LENGTH_PX + row * GAP_SIZE_PX}px`,
-    left: `${col * TILE_LENGTH_PX + (col - 1) * GAP_SIZE_PX}px`,
+    // top: `${row * TILE_LENGTH_PX + row * GAP_SIZE_PX}px`,
+    // left: `${col * TILE_LENGTH_PX + col * GAP_SIZE_PX}px`,
   };
 
   const renderHoles = () => {
@@ -52,7 +52,7 @@ export const Tile: FC<TileProps> = ({ id, row, col, rowHoles, colHoles }) => {
 
   return (
     <div
-      className={` bg-[#ac9377]  hover:outline-[#7dbdf6] hover:outline transition-all duration-75 rounded-sm`}
+      className="bg-[#ac9377]  hover:outline-[#7dbdf6] hover:outline transition-all duration-75 rounded-sm"
       style={style}
     >
       {renderHoles()}

@@ -29,20 +29,26 @@ export interface HoleProps {
 export const Hole: FC<HoleProps> = ({ row, col, tileId, isPlaceable }) => {
   const [currentPlayer, setCurrentPlayer] = useAtom(CurrentPlayerAtom);
   const [lastMarbleMoves, setLastMarbleMoves] = useAtom(LastMarbleMovesAtom);
-  const [marble, setMarble] = useState<PLAYER | null>(null);
   const [gameTileState, setGameTileState] = useAtom(GameTileStateAtom);
   const [placeableHoles, setPlaceableHoles] = useAtom(PlaceableHolesAtom);
   const gameBoard = useAtomValue(GameBoardAtom);
   const isGameStart = useAtomValue(IsGameStartAtom);
   const isGameEnd = useAtomValue(IsGameEndAtom);
 
+  let newGameTileState = new Map(gameTileState);
+  let mappedTile = newGameTileState.get(tileId);
+  if (mappedTile === undefined) {
+    throw new Error(`tile is undefined at hole ${row}-${col}`);
+  }
+  let holeState = mappedTile.Holes[row - mappedTile.row][col - mappedTile.col];
+  let marble = holeState.marble;
+  
   const onClickHandler = () => {
     if (!isGameStart || isGameEnd || !isPlaceable) return;
     if (marble !== null) {
       throw new Error(`invalid hole, marble must be null at ${row} ${col}`);
     }
 
-    setMarble(currentPlayer);
     let lastMarbleMove: LastMarbleMoves;
     if (currentPlayer == PLAYER.RED) {
       lastMarbleMove = {
@@ -58,17 +64,11 @@ export const Hole: FC<HoleProps> = ({ row, col, tileId, isPlaceable }) => {
       };
     }
 
-    setLastMarbleMoves(lastMarbleMove);
-
-    let newGameTileState = new Map(gameTileState);
-    let mappedTile = newGameTileState.get(tileId);
-    if (mappedTile === undefined) {
-      throw new Error(`undefined tile id ${tileId}`);
-    }
     mappedTile.Holes[row - mappedTile.row][col - mappedTile.col].marble =
       currentPlayer;
-    console.log("gameTileState", newGameTileState);
+
     setGameTileState(newGameTileState);
+    setLastMarbleMoves(lastMarbleMove);
     setCurrentPlayer(getNextPlayer(currentPlayer));
     setPlaceableHoles(
       getPlaceableHoles(gameBoard, newGameTileState, lastMarbleMove)
@@ -101,8 +101,6 @@ export const Hole: FC<HoleProps> = ({ row, col, tileId, isPlaceable }) => {
       }
     }
 
-    // console.log("placeableHoles in Hole.tsx", placeableHoles);
-
     return {
       width: `${HOLE_SIZE_PX}px`,
       height: `${HOLE_SIZE_PX}px`,
@@ -111,7 +109,7 @@ export const Hole: FC<HoleProps> = ({ row, col, tileId, isPlaceable }) => {
   };
 
   return (
-    <div className="relative" style={holeWrapperStyle}>
+    <div className="" style={holeWrapperStyle}>
       <div
         className="rounded-full bg-[#3c2d1e] hover:bg-[#a08f7d] transition-all duration-75"
         style={getHoleStyle()}
