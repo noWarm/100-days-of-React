@@ -1,11 +1,11 @@
 import { EMPTY_BOARDCELL } from "../constants/board";
-import { TileProps } from "../types/type";
+import { Orientation, TileProps } from "../types/type";
 
 /**
  * get the initial tile states from a board.
  * will be called only once when a new board is selected
  * @param board
- * @returns 
+ * @returns
  */
 export const GetTilesFromBoard = (board: number[][]) => {
   let boardHeight = board.length;
@@ -33,12 +33,22 @@ export const GetTilesFromBoard = (board: number[][]) => {
           colHoles++;
         }
 
+        let orientation =
+          rowHoles > colHoles ? Orientation.Tall : Orientation.Wide;
+
+        if (rowHoles > colHoles) {
+          let tmp = rowHoles;
+          rowHoles = colHoles;
+          colHoles = tmp;
+        }
+
         Tiles.set(curTileId, {
           id: curTileId,
           row: i,
           col: j,
           rowHoles,
           colHoles,
+          orientation,
           Holes: Array.from({ length: rowHoles }, () =>
             Array.from({ length: colHoles }, () => ({ marble: null }))
           ),

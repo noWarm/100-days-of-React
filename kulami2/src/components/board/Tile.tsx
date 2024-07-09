@@ -2,7 +2,7 @@ import { CSSProperties, FC } from "react";
 import { GAP_SIZE_PX, TILE_LENGTH_PX } from "../../constants/render";
 import { Hole } from "./Hole";
 import { useAtomValue } from "jotai";
-import { HoleInterface } from "../../types/type";
+import { Orientation } from "../../types/type";
 import { PlaceableHolesAtom } from "../../App";
 
 export interface TileProps {
@@ -11,7 +11,6 @@ export interface TileProps {
   col: number;
   rowHoles: number;
   colHoles: number;
-  Holes: HoleInterface[][];
 }
 
 export const Tile: FC<TileProps> = ({ id, row, col, rowHoles, colHoles }) => {

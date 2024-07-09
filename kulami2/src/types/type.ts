@@ -4,7 +4,13 @@ export interface TileProps {
   col: number;
   rowHoles: number;
   colHoles: number;
+  orientation: Orientation;
   Holes: HoleInterface[][];
+}
+
+export enum Orientation {
+  Tall, // e.g. 3x1
+  Wide // e.g. 1x3
 }
 
 export interface HoleInterface {

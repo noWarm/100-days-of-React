@@ -1,12 +1,22 @@
 import { useAtom, useAtomValue } from "jotai";
 import { CSSProperties, FC, useEffect } from "react";
-import { GameBoardAtom, GameTileStateAtom, NextGameBoardAtom, PlaceableHolesAtom } from "../../App";
+import {
+  GameBoardAtom,
+  GameTileStateAtom,
+  NextGameBoardAtom,
+  PlaceableHolesAtom,
+} from "../../App";
 import { printBoard } from "../../logic/Board";
 import { GetTilesFromBoard } from "../../logic/render";
-import { TileProps } from "../../types/type";
-import { GAP_SIZE_PX, TILE_LENGTH_PX } from "../../constants/render";
+import { Orientation, TileProps } from "../../types/type";
+import {
+  GAP_SIZE_PX,
+  HOLE_PADDING_SIZE_PX,
+  HOLE_SIZE_PX,
+  TILE_LENGTH_PX,
+} from "../../constants/render";
 import { Tile } from "./Tile";
-import { animated, useSprings } from "@react-spring/web";
+import { animated, useSprings, easings } from "@react-spring/web";
 import { getAllHolePlaceable } from "../../logic/validMove";
 
 interface BoardContainerProps {}
@@ -16,7 +26,6 @@ export const BoardContainer: FC<BoardContainerProps> = ({}) => {
   const [nextGameBoard, setNextGameBoard] = useAtom(NextGameBoardAtom);
   const [gameTileState, setGameTileState] = useAtom(GameTileStateAtom);
   const [placeableHoles, setIsPlaceableHoles] = useAtom(PlaceableHolesAtom);
-  
 
   const [springs, api] = useSprings(17, (id) => {
     let tile = gameTileState.get(id);
@@ -27,17 +36,28 @@ export const BoardContainer: FC<BoardContainerProps> = ({}) => {
     let row = tile.row;
     let col = tile.col;
 
-    let top = `${row * TILE_LENGTH_PX + row * GAP_SIZE_PX}px`;
-    let left = `${col * TILE_LENGTH_PX + col * GAP_SIZE_PX}px`;
+    let topPx = row * TILE_LENGTH_PX + row * GAP_SIZE_PX;
+    let leftPx = col * TILE_LENGTH_PX + col * GAP_SIZE_PX;
+    if (tile.orientation === Orientation.Tall) {
+      leftPx += (HOLE_SIZE_PX + HOLE_PADDING_SIZE_PX * 2 ) * tile.rowHoles + GAP_SIZE_PX * (tile.rowHoles-1);
+    }
+
+    console.log(`id-${id} row-${row} col-${col} orie-${tile.orientation}`);
+
+    let left = `${leftPx}px`;
+    let top = `${topPx}px`;
+
     return {
       from: {
-        x: top,
-        y: left,
+        y: top,
+        x: left,
+        rotate: tile.orientation === Orientation.Tall ? 90 : 0,
       },
       config: {
-        mass: 50,
-        friction: 600,
+        mass: 100,
+        friction: 800,
         tension: 1200,
+        easing: easings.linear,
       },
     };
   });
@@ -56,12 +76,20 @@ export const BoardContainer: FC<BoardContainerProps> = ({}) => {
         let row = tile.row;
         let col = tile.col;
 
-        let top = `${row * TILE_LENGTH_PX + row * GAP_SIZE_PX}px`;
-        let left = `${col * TILE_LENGTH_PX + col * GAP_SIZE_PX}px`;
+        let topPx = row * TILE_LENGTH_PX + row * GAP_SIZE_PX;
+        let leftPx = col * TILE_LENGTH_PX + col * GAP_SIZE_PX;
+        if (tile.orientation === Orientation.Tall) {
+          leftPx += (HOLE_SIZE_PX + HOLE_PADDING_SIZE_PX * 2 ) * tile.rowHoles + GAP_SIZE_PX * (tile.rowHoles-1);
+        }
+
+
+        let left = `${leftPx}px`;
+        let top = `${topPx}px`;
         return {
           to: {
-            x: top,
-            y: left,
+            y: top,
+            x: left,
+            rotate: tile.orientation === Orientation.Tall ? 90 : 0,
           },
         };
       });
@@ -87,7 +115,10 @@ export const BoardContainer: FC<BoardContainerProps> = ({}) => {
     return (
       <div className="relative" style={style}>
         {Array.from(Tiles).map((el) => (
-          <animated.div className="absolute" style={springs[el[0]]}>
+          <animated.div
+            className="absolute origin-top-left"
+            style={springs[el[0]]}
+          >
             <Tile {...el[1]} key={el[0]} />
           </animated.div>
         ))}
