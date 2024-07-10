@@ -11,3 +11,8 @@ I will code one simple react app per day for practice.
 #4 2024-06-27:
 - add useCallback, memo to optimize steam-clock-redo
 - fix steam-clock-redo bugs
+
+#5-#17 2024-06-28 - 2024-07-10:
+- kulami1
+- animation sandbox for kulami2 rotation
+- kulami2
