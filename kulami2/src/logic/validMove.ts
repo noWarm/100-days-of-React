@@ -1,5 +1,11 @@
 import { EMPTY_BOARDCELL } from "../constants/board";
-import { LastMarbleMoves, PLAYER, TileProps } from "../types/type";
+import {
+  GameCellState,
+  LastMarbleMoves,
+  PLAYER,
+  TileProps,
+} from "../types/type";
+import { printBoard } from "./Board";
 
 export const getAllHolePlaceable = (board: number[][]) => {
   let boardHeight = board.length;
@@ -18,7 +24,7 @@ export const getAllHolePlaceable = (board: number[][]) => {
  */
 export const getPlaceableHoles = (
   board: number[][],
-  gameTileState: Map<number, TileProps>,
+  gameBoardState: GameCellState[][],
   lastMarbleMove: LastMarbleMoves
 ): boolean[][] => {
   let boardHeight = board.length;
@@ -35,7 +41,6 @@ export const getPlaceableHoles = (
 
   let lastRow: number;
   let lastCol: number;
-  let lastTileId: number;
   let lastBlackTileId: number | null = null;
   let lastRedTileId: number | null = null;
   if (lastPlayerMove == PLAYER.BLACK) {
@@ -47,7 +52,7 @@ export const getPlaceableHoles = (
     lastBlackTileId = lastMarbleMove.blackLast.tileId;
 
     if (lastMarbleMove.redLast === null) {
-      throw new Error ("red always move first");
+      throw new Error("red always move first");
     }
     lastRedTileId = lastMarbleMove.redLast.tileId;
   } else {
@@ -63,18 +68,23 @@ export const getPlaceableHoles = (
     }
   }
 
+  printBoard(board);
+
   // search vertically at lastCol
   for (let i = 0; i < boardHeight; i++) {
-    let inspectingTileId = gameTileState.get(board[i][lastCol]);
+    let inspectingTileId = board[i][lastCol];
     if (board[i][lastCol] === EMPTY_BOARDCELL) continue;
     if (inspectingTileId === undefined) {
       throw new Error("invalid inspecting tile id");
     }
+    // if the cell is empty
+    // if it's not same tile as last black
+    // if it's not same tile as last red
+
     if (
-      inspectingTileId.Holes[i - inspectingTileId.row][
-        lastCol - inspectingTileId.col
-      ].marble === null && (lastBlackTileId === null || inspectingTileId.id != lastBlackTileId) && (lastRedTileId === null || inspectingTileId.id != lastRedTileId)
-      
+      gameBoardState[i][lastCol].marble === null &&
+      (lastBlackTileId === null || inspectingTileId != lastBlackTileId) &&
+      (lastRedTileId === null || inspectingTileId != lastRedTileId)
     ) {
       placeableGrid[i][lastCol] = true;
     }
@@ -82,15 +92,15 @@ export const getPlaceableHoles = (
 
   // search horizontally at lastRow
   for (let i = 0; i < boardWidth; i++) {
-    let inspectingTileId = gameTileState.get(board[lastRow][i]);
+    let inspectingTileId = board[lastRow][i];
     if (board[lastRow][i] === EMPTY_BOARDCELL) continue;
     if (inspectingTileId === undefined) {
       throw new Error("invalid inspecting tile id");
     }
     if (
-      inspectingTileId.Holes[lastRow! - inspectingTileId.row][
-        i - inspectingTileId.col
-      ].marble === null && (lastBlackTileId === null || inspectingTileId.id != lastBlackTileId) && (lastRedTileId === null || inspectingTileId.id != lastRedTileId)
+      gameBoardState[lastRow][i].marble === null &&
+      (lastBlackTileId === null || inspectingTileId != lastBlackTileId) &&
+      (lastRedTileId === null || inspectingTileId != lastRedTileId)
     ) {
       placeableGrid[lastRow][i] = true;
     }

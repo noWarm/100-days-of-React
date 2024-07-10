@@ -1,4 +1,5 @@
 import { EMPTY_BOARDCELL } from "../constants/board";
+import { GameCellState } from "../types/type";
 
 export const getDefault8x8Board = (): number[][] => {
   return [
@@ -40,5 +41,35 @@ export const printBoard = (board: number[][]) => {
     }
     boardString += "\n";
   }
-  console.log(boardString);
+  // console.log(boardString);
 };
+
+export const GetInitGameBoardState = (board: number[][]): GameCellState[][] => {
+  return board.map((row, rowIndex) =>
+    row.map((tileId, colIndex) => ({
+      row: rowIndex,
+      col: colIndex,
+      tileId: tileId,
+      marble: null,
+      isEmpty: (tileId === EMPTY_BOARDCELL)
+    }))
+  );
+};
+
+export const printGameBoardState = (gameCellState: GameCellState[][]) => {
+  let boardStateString = "";
+  for (let i = 0; i < gameCellState.length; i++) {
+    for (let j = 0; j < gameCellState[0].length; j++) {
+      if (gameCellState[i][j].isEmpty) {
+        boardStateString += "x" + " ";
+      }
+      else if (gameCellState[i][j].marble === null) {
+        boardStateString += "." + " ";
+      } else {
+        boardStateString += gameCellState[i][j].marble + " ";
+      }
+    }
+    boardStateString += "\n";
+  }
+  // console.log(boardStateString);
+}

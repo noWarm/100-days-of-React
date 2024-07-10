@@ -3,6 +3,8 @@ import { useAtom, useAtomValue } from "jotai";
 import {
   CurrentPlayerAtom,
   GameBoardAtom,
+  GameBoardStateAtom,
+  GameScoreAtom,
   GameTileStateAtom,
   IsGameStartAtom,
   LastMarbleMovesAtom,
@@ -11,6 +13,7 @@ import {
 import {
   getDefault8x8Board,
   getDefaultIrregularBoard,
+  GetInitGameBoardState,
   printBoard,
 } from "../../logic/Board";
 import { getRandomIrregularBoard } from "../../logic/randomBoard";
@@ -19,6 +22,7 @@ import { useGesture } from "@use-gesture/react";
 import { GetTilesFromBoard } from "../../logic/render";
 import { getAllHolePlaceable, getPlaceableHoles } from "../../logic/validMove";
 import { PLAYER } from "../../types/type";
+import { GetInitialScore } from "../../logic/score";
 
 interface InGameMenuActionButtonProps {
   text: string;
@@ -92,6 +96,8 @@ export const InGameMenuPanel: FC = () => {
   const [placeableHoles, setIsPlaceableHoles] = useAtom(PlaceableHolesAtom);
   const [lastMarbleMove, setLastMarbleMoves] = useAtom(LastMarbleMovesAtom);
   const [currentPlayer, setCurrentPlayer] = useAtom(CurrentPlayerAtom);
+  const [gameBoardState, setGameBoardState] = useAtom(GameBoardStateAtom);
+  const [gameScore, setGameScore] = useAtom(GameScoreAtom);
 
   const [trails, api] = useTrail(
     2,
@@ -129,12 +135,14 @@ export const InGameMenuPanel: FC = () => {
       onclickHandler: () => {
         setGameTileState(GetTilesFromBoard(gameBoard));
         setIsPlaceableHoles(getAllHolePlaceable(gameBoard));
+        setGameBoardState(GetInitGameBoardState(gameBoard));
         setLastMarbleMoves({
           redLast: null,
           blackLast: null,
           lastPlayer: null,
         });
         setCurrentPlayer(PLAYER.RED);
+        setGameScore(GetInitialScore());
       },
       top: 0,
     },
@@ -143,6 +151,7 @@ export const InGameMenuPanel: FC = () => {
       onclickHandler: () => {
         setIsGameStart(false);
         setGameTileState(GetTilesFromBoard(gameBoard));
+        setGameBoardState(GetInitGameBoardState(gameBoard));
         setIsPlaceableHoles(getAllHolePlaceable(gameBoard));
         setLastMarbleMoves({
           redLast: null,
@@ -150,6 +159,7 @@ export const InGameMenuPanel: FC = () => {
           lastPlayer: null,
         });
         setCurrentPlayer(PLAYER.RED);
+        setGameScore(GetInitialScore());
       },
       top: 0,
     },

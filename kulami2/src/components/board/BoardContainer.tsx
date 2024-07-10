@@ -2,11 +2,12 @@ import { useAtom, useAtomValue } from "jotai";
 import { CSSProperties, FC, useEffect } from "react";
 import {
   GameBoardAtom,
+  GameBoardStateAtom,
   GameTileStateAtom,
   NextGameBoardAtom,
   PlaceableHolesAtom,
 } from "../../App";
-import { printBoard } from "../../logic/Board";
+import { GetInitGameBoardState, printBoard } from "../../logic/Board";
 import { GetTilesFromBoard } from "../../logic/render";
 import { Orientation, TileProps } from "../../types/type";
 import {
@@ -26,8 +27,9 @@ export const BoardContainer: FC<BoardContainerProps> = ({}) => {
   const [nextGameBoard, setNextGameBoard] = useAtom(NextGameBoardAtom);
   const [gameTileState, setGameTileState] = useAtom(GameTileStateAtom);
   const [placeableHoles, setIsPlaceableHoles] = useAtom(PlaceableHolesAtom);
+  const [gameBoardState, setGameBoardState] = useAtom(GameBoardStateAtom);
 
-  const [springs, api] = useSprings(17, (id) => {
+  const [springs, api] = useSprings(17, (id: number) => {
     let tile = gameTileState.get(id);
     if (tile === undefined) {
       throw new Error(`undefined tile at id ${id}`);
@@ -42,7 +44,7 @@ export const BoardContainer: FC<BoardContainerProps> = ({}) => {
       leftPx += (HOLE_SIZE_PX + HOLE_PADDING_SIZE_PX * 2 ) * tile.rowHoles + GAP_SIZE_PX * (tile.rowHoles-1);
     }
 
-    console.log(`id-${id} row-${row} col-${col} orie-${tile.orientation}`);
+    // console.log(`id-${id} row-${row} col-${col} orie-${tile.orientation}`);
 
     let left = `${leftPx}px`;
     let top = `${topPx}px`;
@@ -57,7 +59,7 @@ export const BoardContainer: FC<BoardContainerProps> = ({}) => {
         mass: 100,
         friction: 800,
         tension: 1200,
-        easing: easings.linear,
+        easing: easings.easeInCubic,
       },
     };
   });
@@ -67,7 +69,7 @@ export const BoardContainer: FC<BoardContainerProps> = ({}) => {
 
   useEffect(() => {
     if (nextGameBoard !== null) {
-      api.start((id) => {
+      api.start((id: number) => {
         let tile = GetTilesFromBoard(nextGameBoard).get(id);
         if (tile === undefined) {
           throw new Error(`undefined tile at id ${id}`);
@@ -97,6 +99,7 @@ export const BoardContainer: FC<BoardContainerProps> = ({}) => {
       setGameBoard(nextGameBoard);
       setGameTileState(GetTilesFromBoard(nextGameBoard));
       setIsPlaceableHoles(getAllHolePlaceable(nextGameBoard));
+      setGameBoardState(GetInitGameBoardState(nextGameBoard));
       setNextGameBoard(null);
     }
   }, [nextGameBoard]);
@@ -118,8 +121,9 @@ export const BoardContainer: FC<BoardContainerProps> = ({}) => {
           <animated.div
             className="absolute origin-top-left"
             style={springs[el[0]]}
+            key={el[0]}
           >
-            <Tile {...el[1]} key={el[0]} />
+            <Tile {...el[1]} />
           </animated.div>
         ))}
       </div>

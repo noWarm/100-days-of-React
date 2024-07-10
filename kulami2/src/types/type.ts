@@ -1,3 +1,11 @@
+export interface GameCellState {
+  row: number;
+  col: number;
+  tileId: number;
+  marble: PLAYER | null;
+  isEmpty: boolean // no wooden tile there
+}
+
 export interface TileProps {
   id: number;
   row: number;

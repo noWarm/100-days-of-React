@@ -1,4 +1,4 @@
-import { EMPTY_BOARDCELL, MAX_BOARD_SIZE } from "../constants/board";
+import { EMPTY_BOARDCELL, INITIAL_TILE_TYPE_IDS, MAX_BOARD_SIZE } from "../constants/board";
 import { getRandomIntInclusive } from "../utility/random";
 
 const EDGE_CHECK = [
@@ -15,12 +15,7 @@ let generatedBoard: number[][] = Array.from({ length: MAX_BOARD_SIZE }, () =>
   Array.from({ length: MAX_BOARD_SIZE }, () => EMPTY_BOARDCELL)
 );
 
-const INITIAL_TILE_TYPE_IDS = {
-  2: [5, 9, 11, 14],
-  3: [1, 2, 8, 12],
-  4: [0, 4, 6, 10, 16],
-  6: [3, 7, 13, 15],
-};
+
 let tileTypeIds: {
   [key: number]: number[];
 } = INITIAL_TILE_TYPE_IDS;

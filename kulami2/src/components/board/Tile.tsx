@@ -11,9 +11,17 @@ export interface TileProps {
   col: number;
   rowHoles: number;
   colHoles: number;
+  orientation: Orientation;
 }
 
-export const Tile: FC<TileProps> = ({ id, row, col, rowHoles, colHoles }) => {
+export const Tile: FC<TileProps> = ({
+  id,
+  row,
+  col,
+  rowHoles,
+  colHoles,
+  orientation,
+}) => {
   const placeableHoles = useAtomValue(PlaceableHolesAtom);
   const style: CSSProperties = {
     // position: "absolute",
@@ -34,13 +42,18 @@ export const Tile: FC<TileProps> = ({ id, row, col, rowHoles, colHoles }) => {
         //   col+j,
         //   isHolePlaceable(row, col, placeableHoles)
         // );
+
+        let trueRow = orientation === Orientation.Tall ? row + j : row + i;
+        let trueCol = orientation === Orientation.Tall ? col + rowHoles - 1 - i : col + j;
+
         holes.push(
           <Hole
             key={`${i}-${j}`}
-            col={col + j}
-            row={row + i}
+            row={trueRow}
+            col={trueCol}
             tileId={id}
-            isPlaceable={placeableHoles[row + i][col + j]}
+            tileOrientation={orientation}
+            isPlaceable={placeableHoles[trueRow][trueCol]}
           />
         );
       }
@@ -51,10 +64,11 @@ export const Tile: FC<TileProps> = ({ id, row, col, rowHoles, colHoles }) => {
 
   return (
     <div
-      className="bg-[#ac9377]  hover:outline-[#7dbdf6] hover:outline transition-all duration-75 rounded-sm"
+      className="bg-[#e9c59a] rounded-sm"
       style={style}
     >
       {renderHoles()}
+      {/* <div className="absolute">{id}</div> */}
     </div>
   );
 };

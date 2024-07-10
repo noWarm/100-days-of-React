@@ -4,6 +4,8 @@ import { useAtom, useAtomValue } from "jotai";
 import {
   CurrentPlayerAtom,
   GameBoardAtom,
+  GameBoardStateAtom,
+  GameScoreAtom,
   GameTileStateAtom,
   IsGameEndAtom,
   IsGameStartAtom,
@@ -11,8 +13,10 @@ import {
   PlaceableHolesAtom,
   // PlaceableHolesAtom,
 } from "../../App";
-import { LastMarbleMoves, PLAYER } from "../../types/type";
+import { LastMarbleMoves, Orientation, PLAYER } from "../../types/type";
 import { getPlaceableHoles } from "../../logic/validMove";
+import { printGameBoardState } from "../../logic/Board";
+import { GetScoreFromBoardState } from "../../logic/score";
 
 const getNextPlayer = (currentPlayer: PLAYER) => {
   if (currentPlayer == PLAYER.RED) return PLAYER.BLACK;
@@ -24,30 +28,41 @@ export interface HoleProps {
   col: number;
   tileId: number;
   isPlaceable: boolean;
+  tileOrientation: Orientation;
 }
 
-export const Hole: FC<HoleProps> = ({ row, col, tileId, isPlaceable }) => {
+export const Hole: FC<HoleProps> = ({
+  row,
+  col,
+  tileId,
+  isPlaceable,
+  tileOrientation,
+}) => {
   const [currentPlayer, setCurrentPlayer] = useAtom(CurrentPlayerAtom);
   const [lastMarbleMoves, setLastMarbleMoves] = useAtom(LastMarbleMovesAtom);
-  const [gameTileState, setGameTileState] = useAtom(GameTileStateAtom);
+  // const [gameTileState, setGameTileState] = useAtom(GameTileStateAtom);
+  const [gameBoardState, setGameBoardState] = useAtom(GameBoardStateAtom);
   const [placeableHoles, setPlaceableHoles] = useAtom(PlaceableHolesAtom);
   const gameBoard = useAtomValue(GameBoardAtom);
   const isGameStart = useAtomValue(IsGameStartAtom);
   const isGameEnd = useAtomValue(IsGameEndAtom);
+  const [gameScore, setGameScore] = useAtom(GameScoreAtom);
 
-  let newGameTileState = new Map(gameTileState);
-  let mappedTile = newGameTileState.get(tileId);
-  if (mappedTile === undefined) {
-    throw new Error(`tile is undefined at hole ${row}-${col}`);
-  }
-  let holeState = mappedTile.Holes[row - mappedTile.row][col - mappedTile.col];
-  let marble = holeState.marble;
-  
+  const [isHovered, setIsHovered] = useState(false);
+
+  let marble = gameBoardState[row][col].marble;
+
+  GetScoreFromBoardState(gameBoard, gameBoardState);
+
   const onClickHandler = () => {
+    // console.log(`row-${row} col-${col}`);
+    
     if (!isGameStart || isGameEnd || !isPlaceable) return;
     if (marble !== null) {
       throw new Error(`invalid hole, marble must be null at ${row} ${col}`);
     }
+
+    gameBoardState[row][col].marble = currentPlayer;
 
     let lastMarbleMove: LastMarbleMoves;
     if (currentPlayer == PLAYER.RED) {
@@ -64,25 +79,25 @@ export const Hole: FC<HoleProps> = ({ row, col, tileId, isPlaceable }) => {
       };
     }
 
-    mappedTile.Holes[row - mappedTile.row][col - mappedTile.col].marble =
-      currentPlayer;
-
-    setGameTileState(newGameTileState);
+    setGameBoardState(gameBoardState);
     setLastMarbleMoves(lastMarbleMove);
     setCurrentPlayer(getNextPlayer(currentPlayer));
     setPlaceableHoles(
-      getPlaceableHoles(gameBoard, newGameTileState, lastMarbleMove)
+      getPlaceableHoles(gameBoard, gameBoardState, lastMarbleMove)
     );
+    setGameScore(GetScoreFromBoardState(gameBoard, gameBoardState));
   };
 
   const holeWrapperStyle: CSSProperties = {
     padding: `${HOLE_PADDING_SIZE_PX}px`,
   };
 
+  const HoleNormalBg = "#d1af88";
+
   const getHoleStyle = (): CSSProperties => {
     let bgColor;
     if (lastMarbleMoves.lastPlayer == null) {
-      bgColor = "#3c2d1e";
+      bgColor = HoleNormalBg;
     } else {
       switch (marble) {
         case PLAYER.RED:
@@ -93,9 +108,13 @@ export const Hole: FC<HoleProps> = ({ row, col, tileId, isPlaceable }) => {
           break;
         default:
           if (isPlaceable) {
-            bgColor = "green";
+            if (isHovered) {
+              bgColor = "#4a8a0b";
+            } else {
+              bgColor = "#6ac90c";
+            }
           } else {
-            bgColor = "#D7C0AB";
+            bgColor = HoleNormalBg;
           }
           break;
       }
@@ -105,21 +124,32 @@ export const Hole: FC<HoleProps> = ({ row, col, tileId, isPlaceable }) => {
       width: `${HOLE_SIZE_PX}px`,
       height: `${HOLE_SIZE_PX}px`,
       backgroundColor: bgColor,
+      transition: "all 75ms",
+    };
+  };
+
+  const getImgStyle = (): CSSProperties => {
+    return {
+      transform:
+        tileOrientation === Orientation.Tall
+          ? "rotate(-90deg)"
+          : "rotate(0deg)",
+      userSelect: "none",
     };
   };
 
   return (
-    <div className="" style={holeWrapperStyle}>
+    <div className="bg-[#e9c59a]" style={holeWrapperStyle} onClick={onClickHandler} onMouseEnter={() => setIsHovered(true)}
+    onMouseLeave={() => setIsHovered(false)}>
       <div
-        className="rounded-full bg-[#3c2d1e] hover:bg-[#a08f7d] transition-all duration-75"
+        className="rounded-full bg-[#c4a481] shadow-inner"
         style={getHoleStyle()}
-        onClick={onClickHandler}
       >
         {((lastMarbleMoves.blackLast?.col == col &&
           lastMarbleMoves.blackLast.row == row) ||
           (lastMarbleMoves.redLast?.col == col &&
             lastMarbleMoves.redLast.row == row)) && (
-          <img src="exclaimation_mark.svg" />
+          <img src="exclaimation_mark.svg" style={getImgStyle()} />
         )}
       </div>
     </div>

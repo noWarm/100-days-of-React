@@ -89,7 +89,9 @@ export const MenuPanel: FC = () => {
   const [gameTileState, setGameTileState] = useAtom(GameTileStateAtom);
   const [placeableHoles, setIsPlaceableHoles] = useAtom(PlaceableHolesAtom);
   const [isGameStart, setIsGameStart] = useAtom(IsGameStartAtom);
-  const [triggerBoardSetupAnimation, setTriggerBoardSetupAnimation] = useAtom(TriggerBoardSetupAnimationAtom);
+  const [triggerBoardSetupAnimation, setTriggerBoardSetupAnimation] = useAtom(
+    TriggerBoardSetupAnimationAtom
+  );
   const [nextGameBoard, setNextGameBoard] = useAtom(NextGameBoardAtom);
 
   const [trails, api] = useTrail(
@@ -124,7 +126,6 @@ export const MenuPanel: FC = () => {
           z: 5,
         },
       }));
-
     }
   }, [isGameStart]);
 
@@ -167,14 +168,11 @@ export const MenuPanel: FC = () => {
       top: 20,
     },
     {
-      text: "Edit Board (Coming someday)",
+      text: "Rules",
       onclickHandler: () => {
-        console.log("editing board with dnd");
-        // show grids
-        // enable dnd
-        // enable rotation tooltip action as well
-        // dnd will snap to grid
-        // the dnd will show red highlight when a piece overlaps
+        window.open(
+          "https://foxmind.com/wp-content/uploads/2019/10/FM_Kulami_2019Redesign_Rules_02PRINT.pdf"
+        );
       },
       top: 20,
     },
