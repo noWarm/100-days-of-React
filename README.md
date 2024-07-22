@@ -16,3 +16,9 @@ I will code one simple react app per day for practice.
 - kulami1
 - animation sandbox for kulami2 rotation
 - kulami2
+
+#detour 2024-07-11 - 2024-07-21:
+- went to a stupid hackathon to become stupidly heartbroken
+
+#18 2024-07-22:
+- init lumostiy's train of thought clone project
